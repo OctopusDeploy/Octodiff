@@ -1,36 +1,85 @@
-using System.Collections.Generic;
 using System.IO;
 using System.Security.Cryptography;
+using Octodiff.Diagnostics;
 
 namespace Octodiff.Core
 {
     public class SignatureBuilder
     {
-        public static List<ChunkSignature> BuildSignature(string filePath, int blockSize)
+        public static readonly short MinimumChunkSize = 128;
+        public static readonly short DefaultChunkSize = 2048;
+        public static readonly short MaximumChunkSize = 31 * 1024;
+
+        private short chunkSize;
+
+        public SignatureBuilder()
         {
-            var block = new byte[blockSize];
+            ChunkSize = DefaultChunkSize;
+            HashAlgorithm = SupportedAlgorithms.Hashing.Default();
+            RollingChecksumAlgorithm = SupportedAlgorithms.Checksum.Default();
+            ProgressReporter = new NullProgressReporter();
+        }
 
-            var chunks = new List<ChunkSignature>();
-            using (var stream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read))
+        public IProgressReporter ProgressReporter { get; set; }
+
+        public HashAlgorithm HashAlgorithm { get; set; }
+
+        public IRollingChecksum RollingChecksumAlgorithm { get; set; }
+
+        public short ChunkSize
+        {
+            get { return chunkSize; }
+            set
             {
-                while (true)
-                {
-                    var start = stream.Position;
-                    var read = stream.Read(block, 0, blockSize);
-                    if (read <= 0)
-                        break;
-
-                    chunks.Add(new ChunkSignature
-                    {
-                        StartOffset = start,
-                        Length = read,
-                        Hash = SHA1.Create().ComputeHash(block, 0, read),
-                        RollingChecksum = Adler32RollingChecksum.Calculate(block, 0, read)
-                    });
-                }
+                if (value < MinimumChunkSize)
+                    throw new UsageException(string.Format("Chunk size cannot be less than {0}", MinimumChunkSize));
+                if (value > MaximumChunkSize)
+                    throw new UsageException(string.Format("Chunk size cannot be exceed {0}", MaximumChunkSize));
+                chunkSize = value;
             }
+        }
 
-            return chunks;
+        public void Build(Stream stream, ISignatureWriter signatureWriter)
+        {
+            WriteBasisFileHash(stream, signatureWriter);
+            WriteChunkSignatures(stream, signatureWriter);
+        }
+
+        void WriteBasisFileHash(Stream stream, ISignatureWriter signatureWriter)
+        {
+            ProgressReporter.ReportProgress("Hashing file", 0, stream.Length);
+            stream.Seek(0, SeekOrigin.Begin);
+
+            var hash = HashAlgorithm.ComputeHash(stream);
+
+            ProgressReporter.ReportProgress("Hashing file", stream.Length, stream.Length);
+            signatureWriter.WriteBasisFileHash(hash);
+        }
+
+        void WriteChunkSignatures(Stream stream, ISignatureWriter signatureWriter)
+        {
+            var checksumAlgorithm = RollingChecksumAlgorithm;
+            var hashAlgorithm = HashAlgorithm;
+
+            ProgressReporter.ReportProgress("Building signatures", 0, stream.Length);
+            stream.Seek(0, SeekOrigin.Begin);
+
+            long start = 0;
+            int read;
+            var block = new byte[ChunkSize];
+            while ((read = stream.Read(block, 0, block.Length)) > 0)
+            {
+                signatureWriter.WriteChunk(new ChunkSignature
+                {
+                    StartOffset = start,
+                    Length = (short)read,
+                    Hash = hashAlgorithm.ComputeHash(block, 0, read),
+                    RollingChecksum = checksumAlgorithm.Calculate(block, 0, read)
+                });
+
+                start += read;
+                ProgressReporter.ReportProgress("Building signatures", start, stream.Length);
+            }
         }
     }
 }

@@ -29,10 +29,11 @@ namespace Octodiff.Core
                         break;
 
                     var adler = new Adler32RollingChecksum();
+                    uint checksum = 0;
 
                     var remainingPossibleChunkSize = maxChunkSize;
 
-                    for (int i = 0; i < read - minChunkSize; i++)
+                    for (var i = 0; i < read - minChunkSize; i++)
                     {
                         var readSoFar = startPosition + i;
 
@@ -42,30 +43,26 @@ namespace Octodiff.Core
                             remainingPossibleChunkSize = minChunkSize;
                         }
 
-                        if (i == 0)
+                        if (i == 0 || remainingBytes < maxChunkSize)
                         {
-                            adler.Initialize(buffer, i, remainingPossibleChunkSize);
-                        }
-                        else if (remainingBytes < maxChunkSize)
-                        {
-                            adler.Initialize(buffer, i, remainingPossibleChunkSize);
+                            checksum = adler.Calculate(buffer, i, remainingPossibleChunkSize);
                         }
                         else
                         {
                             var remove = buffer[i- 1];
                             var add = buffer[i + remainingPossibleChunkSize - 1];
-                            adler.Rotate(remove, add, remainingPossibleChunkSize);
+                            checksum = adler.Rotate(checksum, remove, add, remainingPossibleChunkSize);
                         }
 
                         if (readSoFar - (lastMatchPosition - remainingPossibleChunkSize) < remainingPossibleChunkSize)
                             continue;
 
-                        if (!chunkMap.ContainsKey(adler.Value)) 
+                        if (!chunkMap.ContainsKey(checksum)) 
                             continue;
-                        
-                        var startIndex = chunkMap[adler.Value];
 
-                        for (var j = startIndex; j < chunks.Count && chunks[j].RollingChecksum == adler.Value; j++)
+                        var startIndex = chunkMap[checksum];
+
+                        for (var j = startIndex; j < chunks.Count && chunks[j].RollingChecksum == checksum; j++)
                         {
                             var chunk = chunks[j];
                             

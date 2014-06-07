@@ -129,6 +129,8 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
+using System.Linq;
+using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
 using System.Security.Permissions;
 using System.Text;
@@ -521,6 +523,8 @@ namespace Octodiff.CommandLine
 
     public class OptionSet : KeyedCollection<string, Option>
     {
+        readonly List<Tuple<string, string, Action<string>>> positionalParameters = new List<Tuple<string, string, Action<string>>>(); 
+
         public OptionSet()
             : this(delegate(string f) { return f; })
         {
@@ -614,6 +618,11 @@ namespace Octodiff.CommandLine
         {
             base.Add(option);
             return this;
+        }
+
+        public void Positional(string name, string description, Action<string> valueCallback)
+        {
+            positionalParameters.Add(Tuple.Create(name, description, valueCallback));
         }
 
         sealed class ActionOption : Option
@@ -781,6 +790,15 @@ namespace Octodiff.CommandLine
             }
             if (c.Option != null)
                 c.Option.Invoke(c);
+
+            for (var i = 0; i < positionalParameters.Count; i++)
+            {
+                if (i < unprocessed.Count)
+                {
+                    positionalParameters[i].Item3(unprocessed[i]);
+                }
+            }
+
             return unprocessed;
         }
 #endif
@@ -950,8 +968,38 @@ namespace Octodiff.CommandLine
 
         private const int OptionWidth = 29;
 
+        public List<string> GetPositionals()
+        {
+            return positionalParameters.Select(s => s.Item1).ToList();
+        } 
+
         public void WriteOptionDescriptions(TextWriter o)
         {
+            foreach (var positional in positionalParameters)
+            {
+                var prototype = "      " + positional.Item1;
+                o.Write(prototype);
+                var written = prototype.Length;
+                if (written < OptionWidth)
+                    o.Write(new string(' ', OptionWidth - written));
+                else
+                {
+                    o.WriteLine();
+                    o.Write(new string(' ', OptionWidth));
+                }
+
+                bool indent = false;
+                string prefix = new string(' ', OptionWidth);
+                foreach (string line in GetLines(positional.Item2))
+                {
+                    if (indent)
+                        o.Write(prefix);
+                    o.WriteLine(line);
+                    indent = true;
+                }
+
+            }
+
             foreach (Option p in this)
             {
                 int written = 0;
@@ -967,7 +1015,7 @@ namespace Octodiff.CommandLine
                 }
 
                 bool indent = false;
-                string prefix = new string(' ', OptionWidth + 2);
+                string prefix = new string(' ', OptionWidth);
                 foreach (string line in GetLines(localizer(GetDescription(p.Description))))
                 {
                     if (indent)
