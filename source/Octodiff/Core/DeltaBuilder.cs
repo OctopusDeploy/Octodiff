@@ -23,6 +23,8 @@ namespace Octodiff.Core
             var signature = signatureReader.ReadSignature();
             var chunks = signature.Chunks;
 
+            deltaWriter.WriteMetadata(signature.HashAlgorithm, signature.BasisFileHash);
+
             chunks = OrderChunksByChecksum(chunks);
 
             int minChunkSize;
@@ -113,6 +115,8 @@ namespace Octodiff.Core
             {
                 deltaWriter.WriteDataCommand(newFileStream, lastMatchPosition, newFileStream.Length - lastMatchPosition);
             }
+
+            deltaWriter.Finish();
         }
 
         private static List<ChunkSignature> OrderChunksByChecksum(IEnumerable<ChunkSignature> chunks)
@@ -143,10 +147,5 @@ namespace Octodiff.Core
 
             return chunkMap;
         }
-    }
-
-    public interface ISignatureReader
-    {
-        Signature ReadSignature();
     }
 }

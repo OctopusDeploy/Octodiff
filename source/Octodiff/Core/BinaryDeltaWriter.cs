@@ -12,8 +12,14 @@ namespace Octodiff.Core
             this.writer = new BinaryWriter(stream);
         }
 
-        public void WriteMetadata()
+        public void WriteMetadata(IHashAlgorithm hashAlgorithm, byte[] basisFileHash)
         {
+            writer.Write(8);
+            writer.Write("OCTODELTA");
+            writer.Write(hashAlgorithm.Name);
+            writer.Write(basisFileHash.Length);
+            writer.Write(basisFileHash);
+            writer.Write(8);
         }
 
         public void WriteCopyCommand(DataRange segment)
@@ -52,7 +58,6 @@ namespace Octodiff.Core
 
         public void Finish()
         {
-            
         }
     }
 }

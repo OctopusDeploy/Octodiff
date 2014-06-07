@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
 using Octodiff.CommandLine;
 using Octodiff.Core;
 
@@ -57,7 +56,7 @@ namespace Octodiff
             Console.ResetColor();
         }
 
-        private static string ExtractCommand(IList<string> args, out string[] remaining)
+        private static string ExtractCommand(ICollection<string> args, out string[] remaining)
         {
             remaining = args.Count <= 1 ? new string[0] : args.Skip(1).ToArray();
             return (args.FirstOrDefault() ?? string.Empty).ToLowerInvariant();

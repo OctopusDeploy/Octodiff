@@ -1,4 +1,5 @@
 using System.IO;
+using System.Security.Policy;
 
 namespace Octodiff.Core
 {
@@ -26,9 +27,9 @@ namespace Octodiff.Core
             decorated.WriteDataCommand(source, offset, length);
         }
 
-        public void WriteMetadata()
+        public void WriteMetadata(IHashAlgorithm hashAlgorithm, byte[] basisFileHash)
         {
-            decorated.WriteMetadata();
+            decorated.WriteMetadata(hashAlgorithm, basisFileHash);
         }
 
         public void WriteCopyCommand(DataRange chunk)
