@@ -7,6 +7,8 @@ namespace Octodiff.Core
         private ushort a = 1;
         private ushort b;
 
+        public string Name { get { return "Adler32"; } }
+
         public UInt32 Calculate(byte[] block, int offset, int count)
         {
             var a = 1;

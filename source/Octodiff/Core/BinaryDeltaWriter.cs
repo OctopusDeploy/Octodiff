@@ -7,9 +7,9 @@ namespace Octodiff.Core
     {
         private readonly BinaryWriter writer;
 
-        public BinaryDeltaWriter(BinaryWriter writer)
+        public BinaryDeltaWriter(Stream stream)
         {
-            this.writer = writer;
+            this.writer = new BinaryWriter(stream);
         }
 
         public void WriteMetadata()

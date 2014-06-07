@@ -37,6 +37,9 @@
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CommandLine\DeltaCommand.cs" />
+    <Compile Include="Core\Signature.cs" />
+    <Compile Include="Core\SignatureReader.cs" />
     <Compile Include="Diagnostics\ConsoleProgressReporter.cs" />
     <Compile Include="Diagnostics\IProgressReporter.cs" />
     <Compile Include="Diagnostics\NullProgressReporter.cs" />

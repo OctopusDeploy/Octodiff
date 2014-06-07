@@ -18,6 +18,7 @@ namespace Octodiff.Diagnostics
 
             if (progressPercentage != percent && percent % 10 == 0)
             {
+                progressPercentage = percent;
                 Console.WriteLine("{0}: {1}%", currentOperation, percent);
             }
         }

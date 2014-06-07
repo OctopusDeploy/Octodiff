@@ -7,7 +7,7 @@ using Octodiff.Diagnostics;
 
 namespace Octodiff.CommandLine
 {
-    [Command("signature", "sig", Description = "Creates a signature file for a given basis file", Usage = "<basis-file> [<signature-file>]")]
+    [Command("signature", "sig", Description = "Given a basis file, creates a signature file", Usage = "<basis-file> [<signature-file>]")]
     public class SignatureCommand : ICommand
     {
         private readonly List<Action<SignatureBuilder>> configuration = new List<Action<SignatureBuilder>>();
@@ -48,7 +48,7 @@ namespace Octodiff.CommandLine
 
             if (string.IsNullOrWhiteSpace(signatureFilePath))
             {
-                signatureFilePath = basisFilePath + ".sig";
+                signatureFilePath = basisFilePath + ".octosig";
             }
             else
             {

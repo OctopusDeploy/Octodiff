@@ -43,6 +43,11 @@ namespace Octodiff
                 WriteError(ex);
                 return 4;
             }
+            catch (CorruptFileFormatException ex)
+            {
+                WriteError(ex);
+                return 2;
+            }
         }
 
         static void WriteError(Exception ex)

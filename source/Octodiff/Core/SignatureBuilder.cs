@@ -1,5 +1,4 @@
 using System.IO;
-using System.Security.Cryptography;
 using Octodiff.Diagnostics;
 
 namespace Octodiff.Core
@@ -22,7 +21,7 @@ namespace Octodiff.Core
 
         public IProgressReporter ProgressReporter { get; set; }
 
-        public HashAlgorithm HashAlgorithm { get; set; }
+        public IHashAlgorithm HashAlgorithm { get; set; }
 
         public IRollingChecksum RollingChecksumAlgorithm { get; set; }
 
@@ -41,19 +40,20 @@ namespace Octodiff.Core
 
         public void Build(Stream stream, ISignatureWriter signatureWriter)
         {
-            WriteBasisFileHash(stream, signatureWriter);
+            WriteMetadata(stream, signatureWriter);
             WriteChunkSignatures(stream, signatureWriter);
         }
 
-        void WriteBasisFileHash(Stream stream, ISignatureWriter signatureWriter)
+        void WriteMetadata(Stream stream, ISignatureWriter signatureWriter)
         {
             ProgressReporter.ReportProgress("Hashing file", 0, stream.Length);
             stream.Seek(0, SeekOrigin.Begin);
 
             var hash = HashAlgorithm.ComputeHash(stream);
 
+            signatureWriter.WriteMetadata(HashAlgorithm, RollingChecksumAlgorithm, hash);
+
             ProgressReporter.ReportProgress("Hashing file", stream.Length, stream.Length);
-            signatureWriter.WriteBasisFileHash(hash);
         }
 
         void WriteChunkSignatures(Stream stream, ISignatureWriter signatureWriter)
