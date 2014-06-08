@@ -10,11 +10,6 @@ Of course, the benefit is that instead of transferring the entire *new file* to 
 
 Octodiff is an executable, but can also be referenced and used as any .NET assembly. 
 
-Usage:
-
-    octodiff signature <basis-file> [options]
-
-
 ## Signatures
 
 ```
