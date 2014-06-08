@@ -37,8 +37,8 @@ function Run-OctodiffSimulation($iterations) {
         $name = "Package" + $i  
         mkdir $name -ErrorAction SilentlyContinue | Out-Null
         pushd $name  | Out-Null
-        for ($j = 0; $j -lt $i; $j++) {
-            Generate-RandomFile ($i * 200)
+        for ($j = 0; $j -lt $i * 10; $j++) {
+            Generate-RandomFile ($i * 30)
         }
         popd 
 
@@ -46,8 +46,9 @@ function Run-OctodiffSimulation($iterations) {
         dir $name | ToZip $original 
 
         pushd $name  | Out-Null
-        for ($j = 0; $j -lt $i / 8; $j++) {
-            Generate-RandomFile ($i * 100)
+        dir | get-random -count ($i * 2) | remove-item
+        for ($j = 0; $j -lt $i * 3; $j++) {
+            Generate-RandomFile ($i * 30)
         }
         popd
 
@@ -74,6 +75,10 @@ function Run-OctodiffSimulation($iterations) {
         Write-Host " Signature size:  $((get-item $sigfile).Length / 1024)K"
         Write-Host " Delta size:      $((get-item $deltafile).Length / 1024)K"
         Write-Host " Time taken:      $($watch.ElapsedMilliseconds)ms"
+
+        $oldHash = (get-filehash $newfile).Hash
+        $newHash = (Get-FileHash ($newfile + "_2")).Hash
+        write-host " Hashes equal:    $($oldHash -eq $newHash)"
     }
     popd
 }
@@ -141,4 +146,4 @@ function ToZip($fileName, $relativeBaseDirectory=$null, [switch] $appendToZip=$f
 }
 
 clear
-Run-OctodiffSimulation -iterations 5
+Run-OctodiffSimulation -iterations 100
