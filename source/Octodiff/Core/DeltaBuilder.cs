@@ -1,13 +1,15 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Octodiff.Diagnostics;
 
 namespace Octodiff.Core
 {
     public class DeltaBuilder
     {
-        private const int ReadBufferSize = 10*1024*1024;
+        private const int ReadBufferSize = 4*1024*1024;
 
         public DeltaBuilder()
         {
@@ -42,16 +44,16 @@ namespace Octodiff.Core
                 if (read < 0)
                     break;
 
-                var adler = new Adler32RollingChecksum();
+                var checksumAlgorithm = signature.RollingChecksumAlgorithm;
                 uint checksum = 0;
 
                 var remainingPossibleChunkSize = maxChunkSize;
 
-                for (var i = 0; i < read - minChunkSize; i++)
+                for (var i = 0; i < read - minChunkSize + 1; i++)
                 {
                     var readSoFar = startPosition + i;
 
-                    var remainingBytes = buffer.Length - i;
+                    var remainingBytes = read - i;
                     if (remainingBytes < maxChunkSize)
                     {
                         remainingPossibleChunkSize = minChunkSize;
@@ -59,13 +61,13 @@ namespace Octodiff.Core
 
                     if (i == 0 || remainingBytes < maxChunkSize)
                     {
-                        checksum = adler.Calculate(buffer, i, remainingPossibleChunkSize);
+                        checksum = checksumAlgorithm.Calculate(buffer, i, remainingPossibleChunkSize);
                     }
                     else
                     {
                         var remove = buffer[i- 1];
                         var add = buffer[i + remainingPossibleChunkSize - 1];
-                        checksum = adler.Rotate(checksum, remove, add, remainingPossibleChunkSize);
+                        checksum = checksumAlgorithm.Rotate(checksum, remove, add, remainingPossibleChunkSize);
                     }
 
                     ProgressReporter.ReportProgress("Building delta", readSoFar, fileSize);
@@ -143,7 +145,6 @@ namespace Octodiff.Core
 
                 ProgressReporter.ReportProgress("Creating chunk map", i, chunks.Count);
             }
-
             return chunkMap;
         }
     }
