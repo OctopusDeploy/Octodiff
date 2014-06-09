@@ -1,15 +1,13 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Security.Cryptography;
 using Octodiff.Diagnostics;
 
 namespace Octodiff.Core
 {
     public class DeltaBuilder
     {
-        private const int ReadBufferSize = 1*1024*1024;
+        private const int ReadBufferSize = 10*1024*1024;
 
         public DeltaBuilder()
         {
@@ -83,8 +81,8 @@ namespace Octodiff.Core
                     for (var j = startIndex; j < chunks.Count && chunks[j].RollingChecksum == checksum; j++)
                     {
                         var chunk = chunks[j];
-                            
-                        var sha = SHA1.Create().ComputeHash(buffer, i, remainingPossibleChunkSize);
+
+                        var sha = signature.HashAlgorithm.ComputeHash(buffer, i, remainingPossibleChunkSize);
 
                         if (StructuralComparisons.StructuralEqualityComparer.Equals(sha, chunks[j].Hash))
                         {
@@ -119,9 +117,10 @@ namespace Octodiff.Core
             deltaWriter.Finish();
         }
 
-        private static List<ChunkSignature> OrderChunksByChecksum(IEnumerable<ChunkSignature> chunks)
+        private static List<ChunkSignature> OrderChunksByChecksum(List<ChunkSignature> chunks)
         {
-            return chunks.OrderBy(o => o.RollingChecksum).ToList();
+            chunks.Sort(new ChunkSignatureChecksumComparer());
+            return chunks;
         }
 
         private Dictionary<uint, int> CreateChunkMap(IList<ChunkSignature> chunks, out int maxChunkSize, out int minChunkSize)
