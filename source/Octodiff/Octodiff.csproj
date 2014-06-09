@@ -40,6 +40,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CommandLine\DeltaCommand.cs" />
+    <Compile Include="CommandLine\ExplainDeltaCommand.cs" />
     <Compile Include="CommandLine\PatchCommand.cs" />
     <Compile Include="Core\ChunkSignatureChecksumComparer.cs" />
     <Compile Include="Core\CorruptFileFormatException.cs" />
