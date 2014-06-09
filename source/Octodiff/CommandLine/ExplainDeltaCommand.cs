@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Octodiff.CommandLine.Support;
@@ -8,10 +7,9 @@ using Octodiff.Diagnostics;
 
 namespace Octodiff.CommandLine
 {
-    [Command("explain-delta", Description = "Given a signature file and a new file, creates a delta file", Usage = "<signature-file> <new-file> [<delta-file>]")]
+    [Command("explain-delta", Description = "Prints instructions from a delta file; useful when debugging.", Usage = "<delta-file>")]
     public class ExplainDeltaCommand : ICommand
     {
-        private readonly List<Action<DeltaBuilder>> configuration = new List<Action<DeltaBuilder>>();
         private readonly OptionSet options;
         private string deltaFilePath;
 
@@ -55,11 +53,8 @@ namespace Octodiff.CommandLine
                     {
                         Console.WriteLine("Data: ({0} bytes): {1}", data.Length, BitConverter.ToString(data.ToArray()));                        
                     }
-                },
-                    copy: (long start, long offset) =>
-                    {
-                        Console.WriteLine("Copy: {0:X} to {1:X}", start, offset);
-                    });
+                }, 
+                (start, offset) => Console.WriteLine("Copy: {0:X} to {1:X}", start, offset));
             }
 
             return 0;
