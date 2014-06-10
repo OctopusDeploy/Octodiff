@@ -26,8 +26,6 @@ namespace Octodiff.Tests
                     }
                 }
             }
-
-            Trace.WriteLine("Created package: " + fullPath);
         }
 
         public static void ModifyPackage(string fileName, string newFileName, int filesToAdd, int filesToRemove, int averageFileSize = 100*1024)
@@ -52,8 +50,6 @@ namespace Octodiff.Tests
                     package.DeletePart(part.Uri);
                 }
             }
-
-            Trace.WriteLine("Modified package: " + fullPath);
         }
     }
 }

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using Octodiff.CommandLine;
@@ -32,7 +31,7 @@ namespace Octodiff
             catch (OptionException ex)
             {
                 WriteError(ex);
-                locator.Create(locator.Find("help")).Execute(new[] { commandName });
+                locator.Create(locator.Find("help")).Execute(new[] {commandName});
                 return 4;
             }
             catch (UsageException ex)
@@ -50,13 +49,27 @@ namespace Octodiff
                 WriteError(ex);
                 return 2;
             }
+            catch (IOException ex)
+            {
+                WriteError(ex, details: true);
+                return 1;
+            }
+            catch (Exception ex)
+            {
+                WriteError(ex, details: true);
+                return 3;
+            }
         }
 
-        static void WriteError(Exception ex)
+        static void WriteError(Exception ex, bool details = false)
         {
             Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine("Error: " + ex.Message);
             Console.ResetColor();
+            if (details)
+            {
+                Console.WriteLine(ex.ToString());
+            }
         }
 
         private static string ExtractCommand(ICollection<string> args, out string[] remaining)

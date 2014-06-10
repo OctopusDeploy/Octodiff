@@ -30,5 +30,29 @@ namespace Octodiff.Tests
             Trace.WriteLine(string.Format("Signature ratio: {0:n3}", signatureSizePercentageOfBasis));
             Assert.IsTrue(0.012 <= signatureSizePercentageOfBasis && signatureSizePercentageOfBasis <= 0.014);
         }
+        [Test]
+        [TestCase("SmallPackage1mb.zip", 10)]
+        [TestCase("SmallPackage10mb.zip", 100)]
+        [TestCase("SmallPackage100mb.zip", 1000)]
+        public void ShouldCreateDifferentSignaturesBasedOnChunkSize(string name, int numberOfFiles)
+        {
+            PackageGenerator.GeneratePackage(name, numberOfFiles);
+
+            Run("signature " + name + " " + name + ".sig.1 --chunk-size=128");
+            Run("signature " + name + " " + name + ".sig.2 --chunk-size=256");
+            Run("signature " + name + " " + name + ".sig.3 --chunk-size=1024");
+            Run("signature " + name + " " + name + ".sig.4 --chunk-size=2048");
+            Run("signature " + name + " " + name + ".sig.5 --chunk-size=31744");
+
+            Assert.That(Length(name + ".sig.1") > Length(name + ".sig.2"));
+            Assert.That(Length(name + ".sig.2") > Length(name + ".sig.3"));
+            Assert.That(Length(name + ".sig.3") > Length(name + ".sig.4"));
+            Assert.That(Length(name + ".sig.4") > Length(name + ".sig.5"));
+        }
+
+        static long Length(string fileName)
+        {
+            return new FileInfo(fileName).Length;
+        }
     }
 }

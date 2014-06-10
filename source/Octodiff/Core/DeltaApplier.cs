@@ -16,20 +16,6 @@ namespace Octodiff.Core
 
         public void Apply(Stream basisFileStream, IDeltaReader delta, Stream outputStream)
         {
-            if (!SkipHashCheck)
-            {
-                var sourceFileHash = delta.ExpectedHash;
-                var algorithm = delta.HashAlgorithm;
-
-                var actualHash = algorithm.ComputeHash(basisFileStream);
-
-                if (!StructuralComparisons.StructuralEqualityComparer.Equals(sourceFileHash, actualHash))
-                    throw new UsageException(
-                        "The delta file was created from a signature file that does not match the current basis file. It's likely that you are trying to apply this delta to the wrong file, or the file has changed since the signature and delta were created.");
-
-                basisFileStream.Seek(0, SeekOrigin.Begin);
-            }
-
             delta.Apply(
                 writeData: (data) => outputStream.Write(data, 0, data.Length),
                 copy: (startPosition, length) =>
@@ -45,6 +31,19 @@ namespace Octodiff.Core
                         outputStream.Write(buffer, 0, read);
                     }
                 });
+
+            if (!SkipHashCheck)
+            {
+                outputStream.Seek(0, SeekOrigin.Begin);
+
+                var sourceFileHash = delta.ExpectedHash;
+                var algorithm = delta.HashAlgorithm;
+
+                var actualHash = algorithm.ComputeHash(outputStream);
+
+                if (!StructuralComparisons.StructuralEqualityComparer.Equals(sourceFileHash, actualHash))
+                    throw new UsageException("Verification of the patched file failed. The SHA1 hash of the patch result file, and the file that was used as input for the delta, do not match. This can happen if the basis file changed since the signatures were calculated.");
+            }
         }
     }
 }

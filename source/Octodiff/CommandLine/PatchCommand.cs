@@ -22,7 +22,7 @@ namespace Octodiff.CommandLine
             options.Positional("delta-file", "The delta to apply to the basis file", v => deltaFilePath = v);
             options.Positional("new-file", "The file to write the result to.", v => newFilePath = v);
             options.Add("progress", "Whether progress should be written to stdout", v => progressReporter = new ConsoleProgressReporter());
-            options.Add("skip-hash-check", "Skip checking whether the basis file is the same as the file used to produce the signature that created the delta.", v => progressReporter = new ConsoleProgressReporter());
+            options.Add("skip-verification", "Skip checking whether the basis file is the same as the file used to produce the signature that created the delta.", v => skipHashCheck = true);
         }
 
         public void GetHelp(TextWriter writer)
@@ -61,7 +61,7 @@ namespace Octodiff.CommandLine
 
             using (var basisStream = new FileStream(basisFilePath, FileMode.Open, FileAccess.Read, FileShare.Read))
             using (var deltaStream = new FileStream(deltaFilePath, FileMode.Open, FileAccess.Read, FileShare.Read))
-            using (var newFileStream = new FileStream(newFilePath, FileMode.Create, FileAccess.Write, FileShare.Read))
+            using (var newFileStream = new FileStream(newFilePath, FileMode.Create, FileAccess.ReadWrite, FileShare.Read))
             {
                 delta.Apply(basisStream, new BinaryDeltaReader(deltaStream, progressReporter), newFileStream);
             }

@@ -19,6 +19,7 @@ namespace Octodiff.Tests.Util
             var stdOutBuilder = new StringBuilder();
             var outputBuilder = new StringBuilder();
             var path = new Uri(typeof (DeltaBuilder).Assembly.CodeBase).LocalPath;
+
             var exit = SilentProcessRunner.ExecuteCommand(path,
                 args,
                 Environment.CurrentDirectory,

@@ -45,6 +45,8 @@
   <ItemGroup>
     <Compile Include="DeltaFixture.cs" />
     <Compile Include="PackageGenerator.cs" />
+    <Compile Include="Timings.cs" />
+    <Compile Include="PatchFixture.cs" />
     <Compile Include="SignatureFixture.cs" />
     <Compile Include="Util\CommandLineFixture.cs" />
     <Compile Include="HelpFixture.cs" />
