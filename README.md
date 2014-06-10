@@ -15,10 +15,13 @@ Octodiff is an executable, but can also be referenced and used as any .NET assem
 ```
 Usage: Octodiff signature <basis-file> [<signature-file>] [<options>]
 
-Where [<options>] is any of:
+Arguments:
 
       basis-file             The file to read and create a signature from.
       signature-file         The file to write the signature to.
+
+Options:
+
       --chunk-size=VALUE     Maximum bytes per chunk. Defaults to 2048. Min of
                              128, max of 31744.
       --progress             Whether progress should be written to stdout
@@ -46,12 +49,15 @@ Given that the default chunk size is 2048 bytes, and this is turned into a 26 by
 ```
 Usage: Octodiff delta <signature-file> <new-file> [<delta-file>] [<options>]
 
-Where [<options>] is any of:
+Arguments:
 
       signature-file         The file containing the signature from the basis
                              file.
       new-file               The file to create the delta from.
       delta-file             The file to write the delta to.
+
+Options:
+
       --progress             Whether progress should be written to stdout
 ```
 
@@ -77,18 +83,27 @@ Instructions are either copy commands (read offset X, length Y from the *basis f
 
 The delta file uses a binary file format to keep encoding overhead to a minimum - copy instructions start with 0x60 and then the start offset and length; data commands are 0x80 followed by the length of the data and then the data to copy. 
 
+For debugging, you can use the following command to print an explanation of what is in a given delta file:
+
+```
+octodiff explain-delta MyApp.1.0_to_1.1.octodelta
+```
+
 ## Patching
 
 ```
 Usage: Octodiff patch <basis-file> <delta-file> <new-file> [<options>]
 
-Where [<options>] is any of:
+Arguments:
 
       basis-file             The file that the delta was created for.
       delta-file             The delta to apply to the basis file
       new-file               The file to write the result to.
+
+Options:
+
       --progress             Whether progress should be written to stdout
-      --skip-hash-check      Skip checking whether the basis file is the same
+      --skip-verification    Skip checking whether the basis file is the same
                              as the file used to produce the signature that
                              created the delta.
 ```
@@ -102,6 +117,8 @@ octodiff patch MyApp.1.0.nupkg MyApp.1.0_to_1.1.octodelta MyApp.1.1.nupkg --prog
 This command recreates the *new-file* using simply the *basis-file* and the *delta-file*. 
 
 Applying the delta is the easiest part of the process. We simply open the *delta-file*, and follow the instructions. When there's a copy instruction, we seek to that offset in the *basis-file* and copy until we hit the length. When we encounter a data instruction, we append that data. At the end of the process, we have the *new-file*. 
+
+Octodiff embeds a SHA1 hash of the *new-file* in the *delta-file*. After patching, Octodiff compares this hash to the SHA1 hash of the resulting patched file. If they don't match, Octodiff returns a non-zero exit code.
 
 ## Performance
 
@@ -123,24 +140,14 @@ Delta creation takes roughly the same amount of time whether there are many diff
 
 Patching is the fastest part of the algorithm. 
 
-## Safety
-
-There are two safety features built into Octodiff:
-
- 1. When signatures are created, we include the basis file SHA1 hash in the signature file
- 2. When the delta is created, we include a SHA1 hash of the new file, along with the previous signature file hash
- 3. When we create the new file, we verify that the basis file matches the hash that the signature was created from, and after patching we verify that the resulting file matches the newly created file
-
-This means that in the very low chance a checksum + SHA1 collision on chunks producing a corrupt file, the second level SHA1 whole-file hash serves as a sanity check. 
-
 ## Output and exit codes
 
 If all goes well, Octodiff produces no output. You can use the `--progress` switch to write progress messages to stdout. 
 
 Octodiff uses the following exit codes:
 
-0 - success
-1 - environmental problems
-2 - corrupt signature or delta file
-5 - internal error or unhandled situation
-4 - usage problem (you did something wrong, maybe passing the wrong file)
+ - `0` - success
+ - `1` - environmental problems
+ - `2` - corrupt signature or delta file
+ - `3` - internal error or unhandled situation
+ - `4` - usage problem (you did something wrong, maybe passing the wrong file)
