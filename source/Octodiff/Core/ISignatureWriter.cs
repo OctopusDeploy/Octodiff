@@ -19,12 +19,11 @@ namespace Octodiff.Core
 
         public void WriteMetadata(IHashAlgorithm hashAlgorithm, IRollingChecksum rollingChecksumAlgorithm, byte[] hash)
         {
-            signatureStream.Write(8);
+            signatureStream.Write(BinaryFormat.SignatureHeader);
+            signatureStream.Write(BinaryFormat.Version);
             signatureStream.Write(hashAlgorithm.Name);
             signatureStream.Write(rollingChecksumAlgorithm.Name);
-            signatureStream.Write(hash.Length);
-            signatureStream.Write(hash);
-            signatureStream.Write(8);
+            signatureStream.Write(BinaryFormat.EndOfMetadata);
         }
 
         public void WriteChunk(ChunkSignature signature)

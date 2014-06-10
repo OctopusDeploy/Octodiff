@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System.Collections;
+using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Security.Cryptography;
@@ -20,17 +21,19 @@ namespace Octodiff.Core
         public Signature ReadSignature()
         {
             Progress();
-            var header = reader.ReadInt32();
-            if (header != 8) 
+            var header = reader.ReadBytes(BinaryFormat.SignatureHeader.Length);
+            if (!StructuralComparisons.StructuralEqualityComparer.Equals(BinaryFormat.SignatureHeader, header)) 
                 throw new CorruptFileFormatException("The signature file appears to be corrupt.");
+
+            var version = reader.ReadByte();
+            if (version != BinaryFormat.Version)
+                throw new CorruptFileFormatException("The signature file uses a newer file format than this program can handle.");
 
             var hashAlgorithm = reader.ReadString();
             var rollingChecksumAlgorithm = reader.ReadString();
-            var hashLength = reader.ReadInt32();
-            var hash = reader.ReadBytes(hashLength);
-            
-            header = reader.ReadInt32();
-            if (header != 8)
+
+            var endOfMeta = reader.ReadBytes(BinaryFormat.EndOfMetadata.Length);
+            if (!StructuralComparisons.StructuralEqualityComparer.Equals(BinaryFormat.EndOfMetadata, endOfMeta)) 
                 throw new CorruptFileFormatException("The signature file appears to be corrupt.");
 
             Progress();
@@ -38,8 +41,7 @@ namespace Octodiff.Core
             var hashAlgo = SupportedAlgorithms.Hashing.Create(hashAlgorithm);
             var signature = new Signature(
                 hashAlgo,
-                SupportedAlgorithms.Checksum.Create(rollingChecksumAlgorithm),
-                hash);
+                SupportedAlgorithms.Checksum.Create(rollingChecksumAlgorithm));
 
             var expectedHashLength = hashAlgo.HashLength;
             long start = 0;

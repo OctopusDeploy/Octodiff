@@ -23,7 +23,10 @@ namespace Octodiff.Core
             var signature = signatureReader.ReadSignature();
             var chunks = signature.Chunks;
 
-            deltaWriter.WriteMetadata(signature.HashAlgorithm, signature.BasisFileHash);
+            var hash = signature.HashAlgorithm.ComputeHash(newFileStream);
+            newFileStream.Seek(0, SeekOrigin.Begin);
+
+            deltaWriter.WriteMetadata(signature.HashAlgorithm, hash);
 
             chunks = OrderChunksByChecksum(chunks);
 

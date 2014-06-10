@@ -1,10 +1,9 @@
-﻿using NUnit.Framework;
+﻿using System.Runtime.ExceptionServices;
+using NUnit.Framework;
 using Octodiff.Tests.Util;
 
 namespace Octodiff.Tests
 {
-
-
     [TestFixture]
     public class HelpFixture : CommandLineFixture
     {

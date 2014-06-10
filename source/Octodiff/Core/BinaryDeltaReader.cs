@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.IO;
 using System.Security.Policy;
 using Octodiff.Diagnostics;
@@ -43,23 +44,23 @@ namespace Octodiff.Core
                 return;
 
             reader.BaseStream.Seek(0, SeekOrigin.Begin);
-        
-            var first = reader.ReadInt32();
-            if (first != 8)
-                throw new CorruptFileFormatException("The delta file appears to be corrupt");
 
-            var message = reader.ReadString();
-            if (message != "OCTODELTA")
-                throw new CorruptFileFormatException("The delta file appears to be corrupt");
+            var first = reader.ReadBytes(BinaryFormat.DeltaHeader.Length);
+            if (!StructuralComparisons.StructuralEqualityComparer.Equals(first, BinaryFormat.DeltaHeader))
+                throw new CorruptFileFormatException("The delta file appears to be corrupt.");
+
+            var version = reader.ReadByte();
+            if (version != BinaryFormat.Version)
+                throw new CorruptFileFormatException("The delta file uses a newer file format than this program can handle.");
 
             var hashAlgorithmName = reader.ReadString();
             hashAlgorithm = SupportedAlgorithms.Hashing.Create(hashAlgorithmName);
 
             var hashLength = reader.ReadInt32();
             expectedHash = reader.ReadBytes(hashLength);
-            first = reader.ReadInt32();
-            if (first != 8)
-                throw new CorruptFileFormatException("The delta file appears to be corrupt");
+            var endOfMeta = reader.ReadBytes(BinaryFormat.EndOfMetadata.Length);
+            if (!StructuralComparisons.StructuralEqualityComparer.Equals(BinaryFormat.EndOfMetadata, endOfMeta))
+                throw new CorruptFileFormatException("The signature file appears to be corrupt.");
 
             hasReadMetadata = true;
         }

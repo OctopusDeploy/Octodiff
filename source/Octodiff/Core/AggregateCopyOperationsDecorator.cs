@@ -27,9 +27,9 @@ namespace Octodiff.Core
             decorated.WriteDataCommand(source, offset, length);
         }
 
-        public void WriteMetadata(IHashAlgorithm hashAlgorithm, byte[] basisFileHash)
+        public void WriteMetadata(IHashAlgorithm hashAlgorithm, byte[] expectedNewFileHash)
         {
-            decorated.WriteMetadata(hashAlgorithm, basisFileHash);
+            decorated.WriteMetadata(hashAlgorithm, expectedNewFileHash);
         }
 
         public void WriteCopyCommand(DataRange chunk)

@@ -40,8 +40,12 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
+    <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DeltaFixture.cs" />
+    <Compile Include="PackageGenerator.cs" />
+    <Compile Include="SignatureFixture.cs" />
     <Compile Include="Util\CommandLineFixture.cs" />
     <Compile Include="HelpFixture.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

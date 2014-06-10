@@ -9,17 +9,17 @@ namespace Octodiff.Core
 
         public BinaryDeltaWriter(Stream stream)
         {
-            this.writer = new BinaryWriter(stream);
+            writer = new BinaryWriter(stream);
         }
 
-        public void WriteMetadata(IHashAlgorithm hashAlgorithm, byte[] basisFileHash)
+        public void WriteMetadata(IHashAlgorithm hashAlgorithm, byte[] expectedNewFileHash)
         {
-            writer.Write(8);
-            writer.Write("OCTODELTA");
+            writer.Write(BinaryFormat.DeltaHeader);
+            writer.Write(BinaryFormat.Version);
             writer.Write(hashAlgorithm.Name);
-            writer.Write(basisFileHash.Length);
-            writer.Write(basisFileHash);
-            writer.Write(8);
+            writer.Write(expectedNewFileHash.Length);
+            writer.Write(expectedNewFileHash);
+            writer.Write(BinaryFormat.EndOfMetadata);
         }
 
         public void WriteCopyCommand(DataRange segment)
