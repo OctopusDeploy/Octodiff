@@ -8,7 +8,7 @@ using Octodiff.Diagnostics;
 namespace Octodiff.CommandLine
 {
     [Command("signature", "sig", Description = "Given a basis file, creates a signature file", Usage = "<basis-file> [<signature-file>]")]
-    public class SignatureCommand : ICommand
+    class SignatureCommand : ICommand
     {
         private readonly List<Action<SignatureBuilder>> configuration = new List<Action<SignatureBuilder>>();
         private readonly OptionSet options;

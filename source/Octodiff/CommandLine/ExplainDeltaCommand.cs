@@ -8,7 +8,7 @@ using Octodiff.Diagnostics;
 namespace Octodiff.CommandLine
 {
     [Command("explain-delta", Description = "Prints instructions from a delta file; useful when debugging.", Usage = "<delta-file>")]
-    public class ExplainDeltaCommand : ICommand
+    class ExplainDeltaCommand : ICommand
     {
         private readonly OptionSet options;
         private string deltaFilePath;

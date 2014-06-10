@@ -1,10 +1,9 @@
 using System;
 using System.Linq;
-using Octodiff.CommandLine.Support;
 
-namespace Octodiff.CommandLine
+namespace Octodiff.CommandLine.Support
 {
-    public class CommandLocator : ICommandLocator
+    class CommandLocator : ICommandLocator
     {
         public ICommandMetadata[] List()
         {

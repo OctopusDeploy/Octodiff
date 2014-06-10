@@ -7,7 +7,7 @@ using Octodiff.CommandLine.Support;
 namespace Octodiff.CommandLine
 {
     [Command("help", "?", "h", Description = "Prints this help text")]
-    public class HelpCommand : ICommand
+    class HelpCommand : ICommand
     {
         readonly ICommandLocator commands = new CommandLocator();
 
@@ -53,9 +53,6 @@ namespace Octodiff.CommandLine
             Console.WriteLine(executable + " " + commandName + (!string.IsNullOrWhiteSpace(commandMetadata.Usage) ? " " + commandMetadata.Usage : "") + " [<options>]");
             Console.ResetColor();
             Console.WriteLine();
-            Console.WriteLine("Where [<options>] is any of: ");
-            Console.WriteLine();
-
             command.GetHelp(Console.Out);
 
             Console.WriteLine();
@@ -66,7 +63,7 @@ namespace Octodiff.CommandLine
             Console.ResetColor();
             Console.Write("Usage: ");
             Console.ForegroundColor = ConsoleColor.White;
-            Console.WriteLine(executable + " <command> [<options>]");
+            Console.WriteLine(executable + " <command>");
             Console.ResetColor();
             Console.WriteLine();
             Console.WriteLine("Where <command> is one of: ");

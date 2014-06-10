@@ -150,7 +150,7 @@ namespace NDesk.Options
 namespace Octodiff.CommandLine
 #endif
 {
-    public class OptionValueCollection : IList, IList<string>
+    class OptionValueCollection : IList, IList<string>
     {
 
         List<string> values = new List<string>();
@@ -244,7 +244,7 @@ namespace Octodiff.CommandLine
         }
     }
 
-    public class OptionContext
+    class OptionContext
     {
         private Option option;
         private string name;
@@ -287,14 +287,14 @@ namespace Octodiff.CommandLine
         }
     }
 
-    public enum OptionValueType
+    enum OptionValueType
     {
         None,
         Optional,
         Required,
     }
 
-    public abstract class Option
+    abstract class Option
     {
         string prototype, description;
         string[] names;
@@ -480,7 +480,7 @@ namespace Octodiff.CommandLine
     }
 
     [Serializable]
-    public class OptionException : Exception
+    class OptionException : Exception
     {
         private string option;
 
@@ -519,9 +519,9 @@ namespace Octodiff.CommandLine
         }
     }
 
-    public delegate void OptionAction<TKey, TValue>(TKey key, TValue value);
+    delegate void OptionAction<TKey, TValue>(TKey key, TValue value);
 
-    public class OptionSet : KeyedCollection<string, Option>
+    class OptionSet : KeyedCollection<string, Option>
     {
         readonly List<Tuple<string, string, Action<string>>> positionalParameters = new List<Tuple<string, string, Action<string>>>(); 
 
@@ -975,6 +975,12 @@ namespace Octodiff.CommandLine
 
         public void WriteOptionDescriptions(TextWriter o)
         {
+            if (positionalParameters.Count > 0)
+            {
+                o.WriteLine("Arguments:");
+                o.WriteLine();
+            }
+
             foreach (var positional in positionalParameters)
             {
                 var prototype = "      " + positional.Item1;
@@ -997,7 +1003,17 @@ namespace Octodiff.CommandLine
                     o.WriteLine(line);
                     indent = true;
                 }
+            }
 
+
+            if (this.Count > 0)
+            {
+                if (positionalParameters.Count > 0)
+                {
+                    o.WriteLine();
+                }
+                o.WriteLine("Options:");
+                o.WriteLine();
             }
 
             foreach (Option p in this)

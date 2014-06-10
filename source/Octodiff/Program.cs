@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using Octodiff.CommandLine;
+using Octodiff.CommandLine.Support;
 using Octodiff.Core;
 
 namespace Octodiff
@@ -15,6 +17,7 @@ namespace Octodiff
             var commandName = ExtractCommand(args, out commandArguments);
             var locator = new CommandLocator();
             var command = locator.Find(commandName);
+            
             if (command == null)
             {
                 locator.Create(locator.Find("help")).Execute(commandArguments);

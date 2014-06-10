@@ -1,6 +1,6 @@
 namespace Octodiff.CommandLine.Support
 {
-    public interface ICommandLocator
+    interface ICommandLocator
     {
         ICommandMetadata[] List();
         ICommandMetadata Find(string name);

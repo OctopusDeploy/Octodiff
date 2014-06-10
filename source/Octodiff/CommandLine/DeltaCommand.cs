@@ -8,7 +8,7 @@ using Octodiff.Diagnostics;
 namespace Octodiff.CommandLine
 {
     [Command("delta", Description = "Given a signature file and a new file, creates a delta file", Usage = "<signature-file> <new-file> [<delta-file>]")]
-    public class DeltaCommand : ICommand
+    class DeltaCommand : ICommand
     {
         private readonly List<Action<DeltaBuilder>> configuration = new List<Action<DeltaBuilder>>();
         private readonly OptionSet options;
@@ -34,10 +34,10 @@ namespace Octodiff.CommandLine
         {
             options.Parse(commandLineArguments);
 
-            if (string.IsNullOrWhiteSpace(newFilePath))
-                throw new OptionException("No new file was specified", "new-file");
             if (string.IsNullOrWhiteSpace(signatureFilePath))
                 throw new OptionException("No signature file was specified", "new-file");
+            if (string.IsNullOrWhiteSpace(newFilePath))
+                throw new OptionException("No new file was specified", "new-file");
 
             newFilePath = Path.GetFullPath(newFilePath);
             signatureFilePath = Path.GetFullPath(signatureFilePath);
@@ -45,14 +45,14 @@ namespace Octodiff.CommandLine
             var delta = new DeltaBuilder();
             foreach (var config in configuration) config(delta);
 
-            if (!File.Exists(newFilePath))
-            {
-                throw new FileNotFoundException("File not found: " + newFilePath, newFilePath);
-            }
-
             if (!File.Exists(signatureFilePath))
             {
                 throw new FileNotFoundException("File not found: " + signatureFilePath, signatureFilePath);
+            }
+
+            if (!File.Exists(newFilePath))
+            {
+                throw new FileNotFoundException("File not found: " + newFilePath, newFilePath);
             }
 
             if (string.IsNullOrWhiteSpace(deltaFilePath))

@@ -1,8 +1,8 @@
 using System;
 
-namespace Octodiff.CommandLine
+namespace Octodiff.CommandLine.Support
 {
-    public class CommandException : Exception
+    class CommandException : Exception
     {
         public CommandException(string message)
             : base(message)

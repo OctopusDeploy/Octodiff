@@ -1,6 +1,6 @@
 namespace Octodiff.CommandLine.Support
 {
-    public interface ICommandMetadata
+    interface ICommandMetadata
     {
         string Name { get; }
         string[] Aliases { get; }

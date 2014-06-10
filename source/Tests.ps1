@@ -33,12 +33,12 @@ function Run-OctodiffSimulation($iterations) {
     mkdir .\Temp -ErrorAction SilentlyContinue | Out-Null
     pushd .\Temp
 
-    for ($i = 1; $i -le $iterations; $i++) { 
-        $name = "Package" + $i  
+    for ($i = 10; $i -le $iterations; $i++) { 
+        $name = "Package"  
         mkdir $name -ErrorAction SilentlyContinue | Out-Null
         pushd $name  | Out-Null
         for ($j = 0; $j -lt $i * 10; $j++) {
-            Generate-RandomFile ($i * 30)
+            Generate-RandomFile (1024)
         }
         popd 
 
@@ -46,14 +46,16 @@ function Run-OctodiffSimulation($iterations) {
         dir $name | ToZip $original 
 
         pushd $name  | Out-Null
-        dir | get-random -count ($i * 2) | remove-item
-        for ($j = 0; $j -lt $i * 3; $j++) {
-            Generate-RandomFile ($i * 30)
+        dir | get-random -count (2) | remove-item
+        for ($j = 0; $j -lt 3; $j++) {
+            Generate-RandomFile (1024)
         }
         popd
 
+        $name = $name + "_" + $i
+
         $newfile = join-path (resolve-path .) ($name + "_new.nupkg")
-        dir $name | ToZip $newfile 
+        dir "package" | ToZip $newfile 
 
         $watch = [System.Diagnostics.Stopwatch]::StartNew()
         $sigfile = $original + ".octosig"
@@ -146,4 +148,4 @@ function ToZip($fileName, $relativeBaseDirectory=$null, [switch] $appendToZip=$f
 }
 
 clear
-Run-OctodiffSimulation -iterations 100
+Run-OctodiffSimulation -iterations 10
