@@ -1,40 +1,7 @@
-using System.IO;
 using System.Security.Cryptography;
 
 namespace Octodiff.Core
 {
-    public interface IHashAlgorithm
-    {
-        string Name { get; }
-        int HashLength { get; }
-        byte[] ComputeHash(Stream stream);
-        byte[] ComputeHash(byte[] buffer, int offset, int length);
-    }
-
-    public class HashAlgorithmWrapper : IHashAlgorithm
-    {
-        private readonly HashAlgorithm algorithm;
-
-        public HashAlgorithmWrapper(string name, HashAlgorithm algorithm)
-        {
-            Name = name;
-            this.algorithm = algorithm;
-        }
-
-        public string Name { get; private set; }
-        public int HashLength { get { return algorithm.HashSize / 8; } }
-
-        public byte[] ComputeHash(Stream stream)
-        {
-            return algorithm.ComputeHash(stream);
-        }
-
-        public byte[] ComputeHash(byte[] buffer, int offset, int length)
-        {
-            return algorithm.ComputeHash(buffer, offset, length);
-        }
-    }
-
     public static class SupportedAlgorithms
     {
         public static class Hashing

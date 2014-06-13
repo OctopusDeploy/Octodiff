@@ -44,6 +44,8 @@
     <Compile Include="CommandLine\PatchCommand.cs" />
     <Compile Include="Core\ChunkSignatureChecksumComparer.cs" />
     <Compile Include="Core\CorruptFileFormatException.cs" />
+    <Compile Include="Core\HashAlgorithmWrapper.cs" />
+    <Compile Include="Core\IHashAlgorithm.cs" />
     <Compile Include="Core\ISignatureReader.cs" />
     <Compile Include="Core\Signature.cs" />
     <Compile Include="Core\SignatureReader.cs" />
