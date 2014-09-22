@@ -9,7 +9,7 @@ namespace Octodiff.Core
         int HashLength { get; }
         byte[] ComputeHash(Stream stream);
         byte[] ComputeHash(byte[] buffer, int offset, int length);
-        void TransformBlock(byte[] buffer, int length);
+        void TransformBlock(byte[] buffer, int offset, int length);
         byte[] TransformFinal();
     }
 }

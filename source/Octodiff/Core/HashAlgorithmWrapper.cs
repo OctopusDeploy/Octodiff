@@ -26,9 +26,9 @@ namespace Octodiff.Core
             return algorithm.ComputeHash(buffer, offset, length);
         }
 
-        public void TransformBlock(byte[] buffer, int length)
+        public void TransformBlock(byte[] buffer, int offset, int length)
         {
-            algorithm.TransformBlock(buffer, 0, length, buffer, 0);
+            algorithm.TransformBlock(buffer, offset, length, buffer, offset);
         }
 
         public byte[] TransformFinal()
