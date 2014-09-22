@@ -23,10 +23,8 @@ namespace Octodiff.Core
             var signature = signatureReader.ReadSignature();
             var chunks = signature.Chunks;
 
-            var hash = signature.HashAlgorithm.ComputeHash(newFileStream);
-            newFileStream.Seek(0, SeekOrigin.Begin);
-
-            deltaWriter.WriteMetadata(signature.HashAlgorithm, hash);
+            deltaWriter.Begin(signature.HashAlgorithm);
+            var fullFileChecksumAlgorithm = (IHashAlgorithm)signature.HashAlgorithm.Clone();
 
             chunks = OrderChunksByChecksum(chunks);
 
@@ -46,6 +44,8 @@ namespace Octodiff.Core
                 var read = newFileStream.Read(buffer, 0, buffer.Length);
                 if (read < 0)
                     break;
+
+                fullFileChecksumAlgorithm.TransformBlock(buffer, read);
 
                 var checksumAlgorithm = signature.RollingChecksumAlgorithm;
                 uint checksum = 0;
@@ -119,7 +119,10 @@ namespace Octodiff.Core
                 deltaWriter.WriteDataCommand(newFileStream, lastMatchPosition, newFileStream.Length - lastMatchPosition);
             }
 
-            deltaWriter.Finish();
+            deltaWriter.FinishCommands();
+
+            // Write metadata
+            deltaWriter.WriteMetadata(signature.HashAlgorithm, fullFileChecksumAlgorithm.TransformFinal());
         }
 
         private static List<ChunkSignature> OrderChunksByChecksum(List<ChunkSignature> chunks)

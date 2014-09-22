@@ -21,6 +21,11 @@ namespace Octodiff.Core
             this.decorated = decorated;
         }
 
+        public void Begin(IHashAlgorithm hashAlgorithm)
+        {
+            decorated.Begin(hashAlgorithm);
+        }
+
         public void WriteDataCommand(Stream source, long offset, long length)
         {
             FlushCurrentCopyCommand();
@@ -53,10 +58,10 @@ namespace Octodiff.Core
             bufferedCopy = new DataRange();
         }
 
-        public void Finish()
+        public void FinishCommands()
         {
             FlushCurrentCopyCommand();
-            decorated.Finish();
+            decorated.FinishCommands();
         }
     }
 }
