@@ -17,7 +17,12 @@ namespace Octodiff.Core
         public void Apply(Stream basisFileStream, IDeltaReader delta, Stream outputStream)
         {
             delta.Apply(
-                writeData: (data) => outputStream.Write(data, 0, data.Length),
+                writeData: (data) => 
+                { 
+                    outputStream.Write(data, 0, data.Length);
+                    if (!SkipHashCheck)
+                        delta.HashAlgorithm.TransformBlock(data, 0, data.Length);
+                },
                 copy: (startPosition, length) =>
                 {
                     basisFileStream.Seek(startPosition, SeekOrigin.Begin);
@@ -29,6 +34,8 @@ namespace Octodiff.Core
                     {
                         soFar += read;
                         outputStream.Write(buffer, 0, read);
+                        if (!SkipHashCheck)
+                            delta.HashAlgorithm.TransformBlock(buffer, 0, read);
                     }
                 });
 
@@ -37,9 +44,7 @@ namespace Octodiff.Core
                 outputStream.Seek(0, SeekOrigin.Begin);
 
                 var sourceFileHash = delta.ExpectedHash;
-                var algorithm = delta.HashAlgorithm;
-
-                var actualHash = algorithm.ComputeHash(outputStream);
+                var actualHash = delta.HashAlgorithm.TransformFinal();
 
                 if (!StructuralComparisons.StructuralEqualityComparer.Equals(sourceFileHash, actualHash))
                     throw new UsageException("Verification of the patched file failed. The SHA1 hash of the patch result file, and the file that was used as input for the delta, do not match. This can happen if the basis file changed since the signatures were calculated.");
