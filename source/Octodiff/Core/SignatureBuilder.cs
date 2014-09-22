@@ -40,26 +40,27 @@ namespace Octodiff.Core
 
         public void Build(Stream stream, ISignatureWriter signatureWriter)
         {
-            WriteMetadata(stream, signatureWriter);
-            WriteChunkSignatures(stream, signatureWriter);
+            signatureWriter.WriteBegin(HashAlgorithm, RollingChecksumAlgorithm);
+            byte[] hash;
+            WriteChunkSignatures(stream, signatureWriter, out hash);
+            WriteMetadata(stream, signatureWriter, hash);
         }
 
-        void WriteMetadata(Stream stream, ISignatureWriter signatureWriter)
+        void WriteMetadata(Stream stream, ISignatureWriter signatureWriter, byte[] hash)
         {
             ProgressReporter.ReportProgress("Hashing file", 0, stream.Length);
             stream.Seek(0, SeekOrigin.Begin);
-
-            var hash = HashAlgorithm.ComputeHash(stream);
 
             signatureWriter.WriteMetadata(HashAlgorithm, RollingChecksumAlgorithm, hash);
 
             ProgressReporter.ReportProgress("Hashing file", stream.Length, stream.Length);
         }
 
-        void WriteChunkSignatures(Stream stream, ISignatureWriter signatureWriter)
+        void WriteChunkSignatures(Stream stream, ISignatureWriter signatureWriter, out byte[] hash)
         {
             var checksumAlgorithm = RollingChecksumAlgorithm;
             var hashAlgorithm = HashAlgorithm;
+            var fullFileChecksumAlgorithm = (IHashAlgorithm)HashAlgorithm.Clone();
 
             ProgressReporter.ReportProgress("Building signatures", 0, stream.Length);
             stream.Seek(0, SeekOrigin.Begin);
@@ -77,9 +78,13 @@ namespace Octodiff.Core
                     RollingChecksum = checksumAlgorithm.Calculate(block, 0, read)
                 });
 
+                fullFileChecksumAlgorithm.TransformBlock(block, 0, read);
+
                 start += read;
                 ProgressReporter.ReportProgress("Building signatures", start, stream.Length);
             }
+
+            hash = fullFileChecksumAlgorithm.TransformFinal();
         }
     }
 }
