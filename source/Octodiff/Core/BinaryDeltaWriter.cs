@@ -47,7 +47,7 @@ namespace Octodiff.Core
                     read = source.Read(buffer, 0, buffer.Length);
 
                     writer.Write(buffer, 0, read);
-                } while (read == buffer.Length);
+                } while (read > 0);
             }
             finally
             {
