@@ -29,7 +29,7 @@ namespace Octodiff.Core
                         read = basisFileStream.Read(buffer, 0, buffer.Length);
 
                         outputStream.Write(buffer, 0, read);
-                    } while (read == buffer.Length);
+                    } while (read > 0);
                 });
 
             if (!SkipHashCheck)
