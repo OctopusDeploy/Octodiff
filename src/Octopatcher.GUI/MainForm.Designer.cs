@@ -33,6 +33,7 @@ namespace Octopatcher.GUI
 		/// </summary>
 		private void InitializeComponent()
 		{
+			System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
 			this.label1 = new System.Windows.Forms.Label();
 			this.button1 = new System.Windows.Forms.Button();
 			this.button2 = new System.Windows.Forms.Button();
@@ -98,8 +99,10 @@ namespace Octopatcher.GUI
 			this.DisplayHeader = false;
 			this.DisplayTitle = true;
 			this.Font = new System.Drawing.Font("Segoe UI", 8.25F);
+			this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
 			this.Name = "MainForm";
 			this.Padding = new System.Windows.Forms.Padding(20, 30, 20, 20);
+			this.ShadowType = MetroFramework.Forms.MetroFormShadowType.None;
 			this.Text = "OctoPatcher";
 			this.ResumeLayout(false);
 

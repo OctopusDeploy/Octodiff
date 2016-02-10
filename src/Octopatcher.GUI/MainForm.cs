@@ -26,15 +26,15 @@ namespace Octopatcher.GUI
 		}
 		void Button1Click(object sender, EventArgs e)
 		{
-	
+			new SigMaker().ShowDialog();
 		}
 		void Button2Click(object sender, EventArgs e)
 		{
-	
+			new PatchCreator().ShowDialog();
 		}
 		void Button3Click(object sender, EventArgs e)
 		{
-	
+			new PatchApplier().ShowDialog();
 		}
 	}
 }
