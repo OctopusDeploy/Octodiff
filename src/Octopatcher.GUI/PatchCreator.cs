@@ -1,19 +1,17 @@
 ﻿
 using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
 using MetroFramework.Forms;
-using Octodiff.CommandLine;
 
 namespace Octopatcher.GUI
 {
 	/// <summary>
-	/// Description of MainForm.
+	/// Description of PatchCreator.
 	/// </summary>
-	public partial class MainForm : MetroForm
+	public partial class PatchCreator : MetroForm
 	{
-		public MainForm()
+		public PatchCreator()
 		{
 			//
 			// The InitializeComponent() call is required for Windows Forms designer support.
@@ -23,18 +21,6 @@ namespace Octopatcher.GUI
 			//
 			// TODO: Add constructor code after the InitializeComponent() call.
 			//
-		}
-		void Button1Click(object sender, EventArgs e)
-		{
-	
-		}
-		void Button2Click(object sender, EventArgs e)
-		{
-	
-		}
-		void Button3Click(object sender, EventArgs e)
-		{
-	
 		}
 	}
 }
