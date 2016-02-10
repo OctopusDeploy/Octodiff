@@ -7,6 +7,7 @@ namespace Octopatcher.GUI
 		/// Designer variable used to keep track of non-visual components.
 		/// </summary>
 		private System.ComponentModel.IContainer components = null;
+		private System.Windows.Forms.Label label1;
 		
 		/// <summary>
 		/// Disposes resources used by the form.
@@ -29,13 +30,23 @@ namespace Octopatcher.GUI
 		/// </summary>
 		private void InitializeComponent()
 		{
+			this.label1 = new System.Windows.Forms.Label();
 			this.SuspendLayout();
+			// 
+			// label1
+			// 
+			this.label1.Location = new System.Drawing.Point(6, 242);
+			this.label1.Name = "label1";
+			this.label1.Size = new System.Drawing.Size(294, 23);
+			this.label1.TabIndex = 0;
+			this.label1.Text = "(c) 2016, 0xFireball. Core code is from the OctoDiff project.";
 			// 
 			// MainForm
 			// 
 			this.AutoScaleDimensions = new System.Drawing.SizeF(96F, 96F);
 			this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Dpi;
 			this.ClientSize = new System.Drawing.Size(376, 266);
+			this.Controls.Add(this.label1);
 			this.DisplayHeader = false;
 			this.DisplayTitle = true;
 			this.Name = "MainForm";
