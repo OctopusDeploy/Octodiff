@@ -1,3 +1,5 @@
+# About OctoDiff
+
 Octodiff is a 100% managed implementation of remote delta compression. Usage is inspired by [rdiff](http://librsync.sourcefrog.net/doc/rdiff.html), and like rdiff the [algorithm is based on rsync](http://rsync.samba.org/tech_report/tech_report.html). Octodiff was designed to be used in [Octopus Deploy](http://octopusdeploy.com), an automated deployment tool for .NET developers.
 
 Octodiff can make deltas of files by comparing a remote file with a local file, without needing both files to exist on the same machine. It does this in three phases:
