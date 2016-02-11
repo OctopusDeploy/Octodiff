@@ -11,6 +11,8 @@
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <TargetFrameworkProfile />
+    <ApplicationIcon>..\res\stack-256.ico</ApplicationIcon>
+    <NoWin32Manifest>False</NoWin32Manifest>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Platform)' == 'AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
