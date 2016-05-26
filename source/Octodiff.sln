@@ -1,11 +1,13 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.30110.0
+# Visual Studio 14
+VisualStudioVersion = 14.0.25123.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Octodiff", "Octodiff\Octodiff.csproj", "{BBA7CDC2-DE25-4131-89F2-506712178FC8}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Octodiff.Tests", "Octodiff.Tests\Octodiff.Tests.csproj", "{B7E95BD1-676E-4AC7-9089-3270392776BA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Octodiff.Core", "Octodiff.Core\Octodiff.Core.csproj", "{395374A1-96E6-46F7-BEBD-5506CCA3C16B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{B7E95BD1-676E-4AC7-9089-3270392776BA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B7E95BD1-676E-4AC7-9089-3270392776BA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B7E95BD1-676E-4AC7-9089-3270392776BA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{395374A1-96E6-46F7-BEBD-5506CCA3C16B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{395374A1-96E6-46F7-BEBD-5506CCA3C16B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{395374A1-96E6-46F7-BEBD-5506CCA3C16B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{395374A1-96E6-46F7-BEBD-5506CCA3C16B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

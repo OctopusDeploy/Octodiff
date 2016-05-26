@@ -1,0 +1,71 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{395374A1-96E6-46F7-BEBD-5506CCA3C16B}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Octodiff</RootNamespace>
+    <AssemblyName>Octodiff.Core</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <DocumentationFile>bin\$(AssemblyName).xml</DocumentationFile>
+    <OutputPath>bin\</OutputPath>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <DefineConstants>TRACE</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="Microsoft.CSharp" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Core\ChunkSignatureChecksumComparer.cs" />
+    <Compile Include="Core\CorruptFileFormatException.cs" />
+    <Compile Include="Core\HashAlgorithmWrapper.cs" />
+    <Compile Include="Core\IHashAlgorithm.cs" />
+    <Compile Include="Core\ISignatureReader.cs" />
+    <Compile Include="Core\Signature.cs" />
+    <Compile Include="Core\SignatureReader.cs" />
+    <Compile Include="Core\SignatureWriter.cs" />
+    <Compile Include="Diagnostics\IProgressReporter.cs" />
+    <Compile Include="Diagnostics\NullProgressReporter.cs" />
+    <Compile Include="Core\Adler32RollingChecksum.cs" />
+    <Compile Include="Core\BinaryDeltaReader.cs" />
+    <Compile Include="Core\BinaryDeltaWriter.cs" />
+    <Compile Include="Core\BinaryFormat.cs" />
+    <Compile Include="Core\ChunkSignature.cs" />
+    <Compile Include="Core\AggregateCopyOperationsDecorator.cs" />
+    <Compile Include="Core\CompatibilityException.cs" />
+    <Compile Include="Core\DeltaApplier.cs" />
+    <Compile Include="Core\DeltaBuilder.cs" />
+    <Compile Include="Core\DeltaStatistics.cs" />
+    <Compile Include="Core\DataRange.cs" />
+    <Compile Include="Core\IDeltaReader.cs" />
+    <Compile Include="Core\IDeltaWriter.cs" />
+    <Compile Include="Core\IRollingChecksum.cs" />
+    <Compile Include="Core\ISignatureWriter.cs" />
+    <Compile Include="Core\SignatureBuilder.cs" />
+    <Compile Include="Core\SupportedAlgorithms.cs" />
+    <Compile Include="Core\UsageException.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>

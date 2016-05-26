@@ -57,6 +57,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Octodiff.Core\Octodiff.Core.csproj">
+      <Project>{395374a1-96e6-46f7-bebd-5506cca3c16b}</Project>
+      <Name>Octodiff.Core</Name>
+    </ProjectReference>
     <ProjectReference Include="..\Octodiff\Octodiff.csproj">
       <Project>{bba7cdc2-de25-4131-89f2-506712178fc8}</Project>
       <Name>Octodiff</Name>

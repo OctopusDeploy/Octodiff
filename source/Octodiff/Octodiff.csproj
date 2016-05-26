@@ -42,16 +42,7 @@
     <Compile Include="CommandLine\DeltaCommand.cs" />
     <Compile Include="CommandLine\ExplainDeltaCommand.cs" />
     <Compile Include="CommandLine\PatchCommand.cs" />
-    <Compile Include="Core\ChunkSignatureChecksumComparer.cs" />
-    <Compile Include="Core\CorruptFileFormatException.cs" />
-    <Compile Include="Core\HashAlgorithmWrapper.cs" />
-    <Compile Include="Core\IHashAlgorithm.cs" />
-    <Compile Include="Core\ISignatureReader.cs" />
-    <Compile Include="Core\Signature.cs" />
-    <Compile Include="Core\SignatureReader.cs" />
     <Compile Include="Diagnostics\ConsoleProgressReporter.cs" />
-    <Compile Include="Diagnostics\IProgressReporter.cs" />
-    <Compile Include="Diagnostics\NullProgressReporter.cs" />
     <Compile Include="CommandLine\SignatureCommand.cs" />
     <Compile Include="CommandLine\Support\CommandAttribute.cs" />
     <Compile Include="CommandLine\Support\CommandException.cs" />
@@ -60,29 +51,17 @@
     <Compile Include="CommandLine\Support\ICommand.cs" />
     <Compile Include="CommandLine\Support\ICommandLocator.cs" />
     <Compile Include="CommandLine\Support\ICommandMetadata.cs" />
-    <Compile Include="Core\Adler32RollingChecksum.cs" />
-    <Compile Include="Core\BinaryDeltaReader.cs" />
-    <Compile Include="Core\BinaryDeltaWriter.cs" />
-    <Compile Include="Core\BinaryFormat.cs" />
-    <Compile Include="Core\ChunkSignature.cs" />
-    <Compile Include="Core\AggregateCopyOperationsDecorator.cs" />
-    <Compile Include="Core\CompatibilityException.cs" />
-    <Compile Include="Core\DeltaApplier.cs" />
-    <Compile Include="Core\DeltaBuilder.cs" />
-    <Compile Include="Core\DeltaStatistics.cs" />
-    <Compile Include="Core\DataRange.cs" />
-    <Compile Include="Core\IDeltaReader.cs" />
-    <Compile Include="Core\IDeltaWriter.cs" />
-    <Compile Include="Core\IRollingChecksum.cs" />
-    <Compile Include="Core\ISignatureWriter.cs" />
-    <Compile Include="Core\SignatureBuilder.cs" />
-    <Compile Include="Core\SupportedAlgorithms.cs" />
-    <Compile Include="Core\UsageException.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CommandLine\Support\NDesk.Options.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Octodiff.Core\Octodiff.Core.csproj">
+      <Project>{395374a1-96e6-46f7-bebd-5506cca3c16b}</Project>
+      <Name>Octodiff.Core</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
