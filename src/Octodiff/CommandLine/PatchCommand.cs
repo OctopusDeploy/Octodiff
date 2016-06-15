@@ -6,7 +6,7 @@ using Octodiff.Diagnostics;
 namespace Octodiff.CommandLine
 {
     [Command("patch", Description = "Given a basis file, and a delta, produces the new file", Usage = "<basis-file> <delta-file> <new-file>")]
-    class PatchCommand : ICommand
+    public class PatchCommand : ICommand
     {
         private readonly OptionSet options;
         private IProgressReporter progressReporter;

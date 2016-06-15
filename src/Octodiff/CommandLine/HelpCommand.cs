@@ -7,7 +7,7 @@ using Octodiff.CommandLine.Support;
 namespace Octodiff.CommandLine
 {
     [Command("help", "?", "h", Description = "Prints this help text")]
-    class HelpCommand : ICommand
+    public class HelpCommand : ICommand
     {
         readonly ICommandLocator commands = new CommandLocator();
 

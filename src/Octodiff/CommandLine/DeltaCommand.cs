@@ -8,7 +8,7 @@ using Octodiff.Diagnostics;
 namespace Octodiff.CommandLine
 {
     [Command("delta", Description = "Given a signature file and a new file, creates a delta file", Usage = "<signature-file> <new-file> [<delta-file>]")]
-    class DeltaCommand : ICommand
+    public class DeltaCommand : ICommand
     {
         private readonly List<Action<DeltaBuilder>> configuration = new List<Action<DeltaBuilder>>();
         private readonly OptionSet options;
