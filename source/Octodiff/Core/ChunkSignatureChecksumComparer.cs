@@ -6,7 +6,8 @@ namespace Octodiff.Core
     {
         public int Compare(ChunkSignature x, ChunkSignature y)
         {
-            return x.RollingChecksum.CompareTo(y.RollingChecksum);
+            var comparison = x.RollingChecksum.CompareTo(y.RollingChecksum);
+            return comparison == 0 ? x.StartOffset.CompareTo(y.StartOffset) : comparison;
         }
     }
 }
