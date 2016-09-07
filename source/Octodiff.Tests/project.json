@@ -1,0 +1,20 @@
+{
+  "version": "0.0.0-*",
+  "dependencies": {
+    "NUnit": "2.6.3",
+    "Octodiff": "*"
+  },
+  "frameworks": {
+    "net40": {
+      "frameworkAssemblies": {
+        "System.Core": "*",
+        "System.Xml.Linq": "*",
+        "System.Data.DataSetExtensions": "*",
+        "Microsoft.CSharp": "*",
+        "System.Data": "*",
+        "System.Xml": "*",
+        "WindowsBase": "*"
+      }
+    }
+  }
+}
