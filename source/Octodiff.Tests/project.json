@@ -1,11 +1,13 @@
 {
   "version": "0.0.0-*",
   "dependencies": {
-    "NUnit": "2.6.3",
+    "NUnit": "3.4.1",
+    "dotnet-test-nunit": "3.4.0-beta-2",
     "Octodiff": "*"
   },
+  "testRunner": "nunit",
   "frameworks": {
-    "net40": {
+    "net451": {
       "frameworkAssemblies": {
         "System.Core": "*",
         "System.Xml.Linq": "*",

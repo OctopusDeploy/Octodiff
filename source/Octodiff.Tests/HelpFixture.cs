@@ -15,8 +15,8 @@ namespace Octodiff.Tests
         {
             Run(args);
             Assert.That(ExitCode, Is.EqualTo(exitCode));
-            Assert.That(Output, Is.StringContaining("Usage: Octodiff <command>"));
-            Assert.That(Output, Is.Not.StringContaining("Error"));
+            Assert.That(Output, Does.Contain("Usage: Octodiff <command>"));
+            Assert.That(Output, Does.Not.Contain("Error"));
         }
         
         [Test]
@@ -28,9 +28,9 @@ namespace Octodiff.Tests
         {
             Run(args);
             Assert.That(ExitCode, Is.EqualTo(exitCode));
-            Assert.That(Output, Is.StringContaining("Usage: Octodiff " + commandName));
-            Assert.That(Output, Is.StringContaining("Usage: Octodiff " + commandName));
-            Assert.That(Output, Is.Not.StringContaining("Error"));
+            Assert.That(Output, Does.Contain("Usage: Octodiff " + commandName));
+            Assert.That(Output, Does.Contain("Usage: Octodiff " + commandName));
+            Assert.That(Output, Does.Not.Contain("Error"));
         }
 
         [Test]
@@ -44,8 +44,8 @@ namespace Octodiff.Tests
         {
             Run(args);
             Assert.That(ExitCode, Is.EqualTo(exitCode));
-            Assert.That(Output, Is.StringContaining("Usage"));
-            Assert.That(Output, Is.StringContaining("Error: " + text));
+            Assert.That(Output, Does.Contain("Usage"));
+            Assert.That(Output, Does.Contain("Error: " + text));
         }
     }
 }
