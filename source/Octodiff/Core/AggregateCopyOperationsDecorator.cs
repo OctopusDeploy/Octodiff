@@ -1,5 +1,4 @@
 using System.IO;
-using System.Security.Policy;
 
 namespace Octodiff.Core
 {
