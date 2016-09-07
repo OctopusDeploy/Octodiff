@@ -8,9 +8,9 @@ using Octodiff.Core;
 
 namespace Octodiff
 {
-    class Program
+    public class Program
     {
-        static int Main(string[] args)
+        public static int Main(string[] args)
         {
             string[] commandArguments;
             var commandName = ExtractCommand(args, out commandArguments);

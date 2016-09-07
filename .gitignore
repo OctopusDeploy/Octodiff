@@ -174,3 +174,4 @@ UpgradeLog*.htm
 FakesAssemblies/
 project.lock.json
 source/SmallPackage*
+SmallPackage*
