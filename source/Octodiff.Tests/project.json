@@ -3,7 +3,10 @@
   "dependencies": {
     "NUnit": "3.4.1",
     "dotnet-test-nunit": "3.4.0-beta-2",
-    "Octodiff": "*"
+    "Octodiff": {
+      "target": "project",
+      "version": "*"
+    }
   },
   "testRunner": "nunit",
   "frameworks": {

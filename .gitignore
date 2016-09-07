@@ -175,3 +175,5 @@ FakesAssemblies/
 project.lock.json
 source/SmallPackage*
 SmallPackage*
+tools/
+artifacts/

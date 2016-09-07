@@ -7,9 +7,12 @@
       "frameworkAssemblies": {
         "System.Core": "*",
         "Microsoft.CSharp": "*"
+      },
+      "buildOptions": {
+        "emitEntryPoint": true
       }
     },
-    "netcoreapp1.0": {
+    "netstandard1.5": {
       "dependencies": {
         "Microsoft.NETCore.Runtime.CoreCLR": "1.0.4",
         "Microsoft.NETCore.DotNetHostPolicy": "1.0.1",
@@ -26,13 +29,10 @@
         "System.Runtime.Serialization.Formatters": "4.0.0-rc3-24212-01",
         "System.Text.RegularExpressions": "4.1.0",
         "System.Reflection.Extensions": "4.0.1"
+      },
+      "buildOptions": {
+        "emitEntryPoint": false
       }
     }
-  },
-  "buildOptions": {
-    "emitEntryPoint": true
-  },
-  "runtimes": {
-    "win7-x64": {} 
   }
 }
