@@ -17,6 +17,18 @@
         "System.Xml": "*",
         "WindowsBase": "*"
       }
+    },
+    "netcoreapp1.0": {
+      "imports": "portable-net45+win8",
+      "dependencies": {
+        "Microsoft.NETCore.App": {
+          "version": "1.0.0-*",
+          "type": "platform"
+        },
+        "System.Diagnostics.TraceSource": "4.0.0",
+        "System.IO.Packaging": "4.0.0",
+        "System.IO.FileSystem": "4.0.1" 
+      }
     }
   }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Reflection;
 using System.Text;
 using Octodiff.Core;
 using Octopus.Platform.Util;
@@ -18,11 +19,11 @@ namespace Octodiff.Tests.Util
             var stdErrBuilder = new StringBuilder();
             var stdOutBuilder = new StringBuilder();
             var outputBuilder = new StringBuilder();
-            var path = new Uri(typeof (DeltaBuilder).Assembly.CodeBase).LocalPath;
+            var path = GetPath();
 
             var exit = SilentProcessRunner.ExecuteCommand(path,
                 args,
-                Environment.CurrentDirectory,
+                GetCurrentDirectory(),
                 output =>
                 {
                     stdOutBuilder.AppendLine(output);
@@ -40,6 +41,24 @@ namespace Octodiff.Tests.Util
             StdOut = stdOutBuilder.ToString();
             Output = outputBuilder.ToString();
             ExitCode = exit;
+        }
+
+        string GetPath()
+        {
+#if NET40
+            return new Uri(typeof (DeltaBuilder).Assembly.CodeBase).LocalPath;
+#else
+            return new Uri(typeof(DeltaBuilder).GetTypeInfo().Assembly.CodeBase).LocalPath;
+#endif
+        }
+
+        string GetCurrentDirectory()
+        {
+#if NET40
+            return Environment.CurrentDirectory;
+#else
+            return System.IO.Directory.GetCurrentDirectory();
+#endif
         }
     }
 }
