@@ -46,7 +46,7 @@ namespace Octodiff.Tests.Util
 
         string GetExePath()
         {
-#if NET451
+#if NET40
             return new Uri(typeof(DeltaBuilder).Assembly.CodeBase).LocalPath;
 #else
             return Path.Combine(Path.GetDirectoryName(new Uri(typeof(CommandLineFixture).GetTypeInfo().Assembly.CodeBase).LocalPath), "Octodiff.Tests.exe");
