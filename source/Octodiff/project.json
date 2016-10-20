@@ -9,6 +9,7 @@
         "Microsoft.CSharp": "*"
       },
       "buildOptions": {
+        "platform": "anycpu",
         "emitEntryPoint": true
       }
     },
