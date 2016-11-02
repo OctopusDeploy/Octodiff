@@ -26,7 +26,7 @@ namespace Octodiff.Tests
 
             Run("explain-delta " + name + ".delta");
             Assert.That(Regex.IsMatch(Output, "^Copy: 0 to ([0-9A-F]+)\r\n$"));
-            Assert.That(Output, Is.Not.StringContaining("Data:"));
+            Assert.That(Output, Does.Not.Contain("Data:"));
         }
 
         [Test]

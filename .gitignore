@@ -172,3 +172,8 @@ UpgradeLog*.htm
 
 # Microsoft Fakes
 FakesAssemblies/
+project.lock.json
+source/SmallPackage*
+SmallPackage*
+tools/
+artifacts/

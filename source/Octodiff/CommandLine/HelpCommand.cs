@@ -1,7 +1,7 @@
 using System;
 using System.IO;
 using System.Linq;
-using System.Security.Permissions;
+using System.Reflection;
 using Octodiff.CommandLine.Support;
 
 namespace Octodiff.CommandLine
@@ -17,7 +17,11 @@ namespace Octodiff.CommandLine
 
         public int Execute(string[] commandLineArguments)
         {
+#if NET40
             var executable = Path.GetFileNameWithoutExtension(new Uri(typeof(HelpCommand).Assembly.CodeBase).LocalPath);
+#else
+            var executable = Path.GetFileNameWithoutExtension(new Uri(typeof(HelpCommand).GetTypeInfo().Assembly.CodeBase).LocalPath);
+#endif
 
             var commandName = commandLineArguments.FirstOrDefault();
 

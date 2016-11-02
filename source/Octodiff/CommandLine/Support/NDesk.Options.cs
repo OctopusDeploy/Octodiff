@@ -130,9 +130,6 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
-using System.Runtime.Serialization;
-using System.Security.Permissions;
 using System.Text;
 using System.Text.RegularExpressions;
 
@@ -358,13 +355,9 @@ namespace Octodiff.CommandLine
 
         protected static T Parse<T>(string value, OptionContext c)
         {
-            Type tt = typeof(T);
-            bool nullable = tt.IsValueType && tt.IsGenericType &&
-                !tt.IsGenericTypeDefinition &&
-                tt.GetGenericTypeDefinition() == typeof(Nullable<>);
-            Type targetType = nullable ? tt.GetGenericArguments()[0] : typeof(T);
-            TypeConverter conv = TypeDescriptor.GetConverter(targetType);
-            T t = default(T);
+            var targetType = typeof(T);
+            var conv = TypeDescriptor.GetConverter(targetType);
+            var t = default(T);
             try
             {
                 if (value != null)
@@ -500,22 +493,9 @@ namespace Octodiff.CommandLine
             this.option = optionName;
         }
 
-        protected OptionException(SerializationInfo info, StreamingContext context)
-            : base(info, context)
-        {
-            this.option = info.GetString("OptionName");
-        }
-
         public string OptionName
         {
             get { return this.option; }
-        }
-
-        [SecurityPermission(SecurityAction.LinkDemand, SerializationFormatter = true)]
-        public override void GetObjectData(SerializationInfo info, StreamingContext context)
-        {
-            base.GetObjectData(info, context);
-            info.AddValue("OptionName", option);
         }
     }
 
@@ -526,18 +506,18 @@ namespace Octodiff.CommandLine
         readonly List<Tuple<string, string, Action<string>>> positionalParameters = new List<Tuple<string, string, Action<string>>>(); 
 
         public OptionSet()
-            : this(delegate(string f) { return f; })
+            : this(f => f)
         {
         }
 
-        public OptionSet(Converter<string, string> localizer)
+        public OptionSet(Func<string, string> localizer)
         {
             this.localizer = localizer;
         }
 
-        Converter<string, string> localizer;
+        private readonly Func<string, string> localizer;
 
-        public Converter<string, string> MessageLocalizer
+        public Func<string, string> MessageLocalizer
         {
             get { return localizer; }
         }

@@ -1,0 +1,47 @@
+{
+  "version": "0.0.0-*",
+  "dependencies": {
+    "NUnit": "3.4.1",
+    "dotnet-test-nunit": "3.4.0-beta-2",
+    "Octodiff": {
+     // "target": "project",
+      "version": "*"
+    }
+  },
+  "testRunner": "nunit",
+  "frameworks": {
+    "netcoreapp1.0": {
+      "imports": "portable-net45+win8",
+      "dependencies": {
+        "Microsoft.NETCore.App": {
+          "version": "1.0.0-*"
+        },
+        "System.Diagnostics.TraceSource": "4.0.0",
+        "System.IO.Packaging": "4.0.0",
+        "System.IO.FileSystem": "4.0.1"
+      },
+      "buildOptions": {
+        "emitEntryPoint": true
+      }
+    },
+    "net451": {
+      "frameworkAssemblies": {
+        "System.Core": "*",
+        "System.Xml.Linq": "*",
+        "System.Data.DataSetExtensions": "*",
+        "Microsoft.CSharp": "*",
+        "System.Data": "*",
+        "System.Xml": "*",
+        "WindowsBase": "*"
+      },
+      "buildOptions": {
+        "define": ["NET40"]
+      }
+    }
+  },
+  "runtimes": {
+    "win7-x64": {},
+    "ubuntu.16.04-x64": {},
+    "debian.8-x64": {}
+  }
+}

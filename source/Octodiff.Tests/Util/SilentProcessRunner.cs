@@ -26,7 +26,7 @@ namespace Octopus.Platform.Util
                     oemEncoding = Encoding.GetEncoding(850);
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 oemEncoding = Encoding.UTF8;
             }

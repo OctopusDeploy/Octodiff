@@ -1,7 +1,6 @@
 using System;
 using System.Collections;
 using System.IO;
-using System.Security.Policy;
 using Octodiff.Diagnostics;
 
 namespace Octodiff.Core
