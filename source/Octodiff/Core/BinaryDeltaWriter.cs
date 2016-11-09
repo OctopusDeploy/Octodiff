@@ -12,14 +12,21 @@ namespace Octodiff.Core
             writer = new BinaryWriter(stream);
         }
 
+        public void Begin(IHashAlgorithm hashAlgorithm)
+        {
+            WriteMetadata(hashAlgorithm, new byte[hashAlgorithm.HashLength]);
+        }
+
         public void WriteMetadata(IHashAlgorithm hashAlgorithm, byte[] expectedNewFileHash)
         {
+            writer.Seek(0, SeekOrigin.Begin);
             writer.Write(BinaryFormat.DeltaHeader);
             writer.Write(BinaryFormat.Version);
             writer.Write(hashAlgorithm.Name);
             writer.Write(expectedNewFileHash.Length);
             writer.Write(expectedNewFileHash);
             writer.Write(BinaryFormat.EndOfMetadata);
+            writer.Seek(0, SeekOrigin.End);
         }
 
         public void WriteCopyCommand(DataRange segment)
@@ -56,7 +63,7 @@ namespace Octodiff.Core
             }
         }
 
-        public void Finish()
+        public void FinishCommands()
         {
         }
     }

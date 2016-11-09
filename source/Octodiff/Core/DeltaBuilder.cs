@@ -23,10 +23,8 @@ namespace Octodiff.Core
             var signature = signatureReader.ReadSignature();
             var chunks = signature.Chunks;
 
-            var hash = signature.HashAlgorithm.ComputeHash(newFileStream);
-            newFileStream.Seek(0, SeekOrigin.Begin);
-
-            deltaWriter.WriteMetadata(signature.HashAlgorithm, hash);
+            var fullFileChecksumAlgorithm = (IHashAlgorithm)signature.HashAlgorithm.Clone();
+            deltaWriter.Begin(fullFileChecksumAlgorithm);
 
             chunks = OrderChunksByChecksum(chunks);
 
@@ -36,6 +34,7 @@ namespace Octodiff.Core
 
             var buffer = new byte[ReadBufferSize];
             long lastMatchPosition = 0;
+            long lastChecksumPosition = 0;
 
             var fileSize = newFileStream.Length;
             ProgressReporter.ReportProgress("Building delta", 0, fileSize);
@@ -46,6 +45,12 @@ namespace Octodiff.Core
                 var read = newFileStream.Read(buffer, 0, buffer.Length);
                 if (read < 0)
                     break;
+
+                // Hash the part of the buffer we havent hashed yet
+                int thisChecksumLength = (int)(newFileStream.Position - lastChecksumPosition);
+                int thisChecksumOffset = read - thisChecksumLength;
+                lastChecksumPosition += thisChecksumLength;
+                fullFileChecksumAlgorithm.TransformBlock(buffer, thisChecksumOffset, thisChecksumLength);
 
                 var checksumAlgorithm = signature.RollingChecksumAlgorithm;
                 uint checksum = 0;
@@ -119,7 +124,10 @@ namespace Octodiff.Core
                 deltaWriter.WriteDataCommand(newFileStream, lastMatchPosition, newFileStream.Length - lastMatchPosition);
             }
 
-            deltaWriter.Finish();
+            deltaWriter.FinishCommands();
+
+            // Write metadata
+            deltaWriter.WriteMetadata(fullFileChecksumAlgorithm, fullFileChecksumAlgorithm.TransformFinal());
         }
 
         private static List<ChunkSignature> OrderChunksByChecksum(List<ChunkSignature> chunks)
