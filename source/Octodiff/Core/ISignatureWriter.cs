@@ -4,7 +4,7 @@ namespace Octodiff.Core
 {
     public interface ISignatureWriter
     {
-        void WriteMetadata(IHashAlgorithm hashAlgorithm, IRollingChecksum rollingChecksumAlgorithm, byte[] hash);
+        void WriteMetadata(IHashAlgorithm hashAlgorithm, IRollingChecksum rollingChecksumAlgorithm);
         void WriteChunk(ChunkSignature signature);
     }
 
@@ -17,7 +17,7 @@ namespace Octodiff.Core
             this.signatureStream = new BinaryWriter(signatureStream);
         }
 
-        public void WriteMetadata(IHashAlgorithm hashAlgorithm, IRollingChecksum rollingChecksumAlgorithm, byte[] hash)
+        public void WriteMetadata(IHashAlgorithm hashAlgorithm, IRollingChecksum rollingChecksumAlgorithm)
         {
             signatureStream.Write(BinaryFormat.SignatureHeader);
             signatureStream.Write(BinaryFormat.Version);

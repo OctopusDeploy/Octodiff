@@ -49,9 +49,7 @@ namespace Octodiff.Core
             ProgressReporter.ReportProgress("Hashing file", 0, stream.Length);
             stream.Seek(0, SeekOrigin.Begin);
 
-            var hash = HashAlgorithm.ComputeHash(stream);
-
-            signatureWriter.WriteMetadata(HashAlgorithm, RollingChecksumAlgorithm, hash);
+            signatureWriter.WriteMetadata(HashAlgorithm, RollingChecksumAlgorithm);
 
             ProgressReporter.ReportProgress("Hashing file", stream.Length, stream.Length);
         }
