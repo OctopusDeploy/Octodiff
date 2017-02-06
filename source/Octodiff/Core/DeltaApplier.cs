@@ -24,12 +24,12 @@ namespace Octodiff.Core
 
                     var buffer = new byte[4*1024*1024];
                     int read;
-                    long soFar = 0;
-                    while ((read = basisFileStream.Read(buffer, 0, (int)Math.Min(length - soFar, buffer.Length))) > 0)
+                    do
                     {
-                        soFar += read;
+                        read = basisFileStream.Read(buffer, 0, buffer.Length);
+
                         outputStream.Write(buffer, 0, read);
-                    }
+                    } while (read > 0);
                 });
 
             if (!SkipHashCheck)

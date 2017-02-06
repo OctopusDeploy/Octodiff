@@ -39,16 +39,15 @@ namespace Octodiff.Core
             {
                 source.Seek(offset, SeekOrigin.Begin);
 
-                var buffer = new byte[Math.Min((int)length, 1024 * 1024)];
+                var buffer = new byte[1024 * 1024];
 
                 int read;
-                long soFar = 0;
-                while ((read = source.Read(buffer, 0, (int)Math.Min(length - soFar, buffer.Length))) > 0)
+                do
                 {
-                    soFar += read;
+                    read = source.Read(buffer, 0, buffer.Length);
 
                     writer.Write(buffer, 0, read);
-                }
+                } while (read > 0);
             }
             finally
             {
