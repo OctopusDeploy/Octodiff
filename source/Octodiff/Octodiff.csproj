@@ -2,19 +2,21 @@
 
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;net40</TargetFrameworks>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <AssemblyName>Octodiff</AssemblyName>
     <PackageId>Octodiff</PackageId>
     <OutputType>Exe</OutputType>
-    <DebugType>portable</DebugType>
     <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
-    <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
-    <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
-    <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
-    <GenerateAssemblyCopyrightAttribute>false</GenerateAssemblyCopyrightAttribute>
-  </PropertyGroup>
-
-  <PropertyGroup Condition=" '$(TargetFramework)' == 'netstandard2.0'">
-    <RuntimeIdentifiers>win7-x64;win7-x86;osx.10.10-x64;ubuntu.14.04-x64;ubuntu.16.04-x64;rhel.7-x64;debian.8-x64;fedora.23-x64;opensuse.13.2-x64;linuxmint.17-x64;centos.7-x64</RuntimeIdentifiers>
+    <PackageProjectUrl>https://github.com/OctopusDeploy/Octodiff</PackageProjectUrl>
+    <PackageLicenseUrl>https://github.com/OctopusDeploy/Octodiff/blob/master/LICENSE.txt</PackageLicenseUrl>
+    <Authors>Octopus Deploy</Authors>
+    <Copyright>Octopus Deploy Pty Ltd</Copyright>
+    <PackageTags>tool</PackageTags>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/OctopusDeploy/Octodiff/</RepositoryUrl>
+    <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
+    <Description>100% C# implementation of remote delta compression based on the rsync algorithm</Description>
+    <Product>Octodiff</Product>
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(TargetFramework)' == 'net40' ">
@@ -28,6 +30,8 @@
   </ItemGroup>
 
   <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
+    <PackageReference Include="Microsoft.NETCore.Runtime.CoreCLR" Version="2.0.0" />
+    <PackageReference Include="Microsoft.NETCore.DotNetHostPolicy" Version="2.0.0" />
     <PackageReference Include="System.Runtime" Version="4.3.0" />
     <PackageReference Include="System.Security.Cryptography.Algorithms" Version="4.3.0" />
     <PackageReference Include="System.Collections" Version="4.3.0" />
@@ -42,5 +46,4 @@
     <PackageReference Include="System.Text.RegularExpressions" Version="4.3.0" />
     <PackageReference Include="System.Reflection.Extensions" Version="4.3.0" />
   </ItemGroup>
-
 </Project>
