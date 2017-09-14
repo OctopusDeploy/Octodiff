@@ -1,11 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;net40</TargetFrameworks>
+    <TargetFrameworks>net40;netstandard1.5;netstandard2.0</TargetFrameworks>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <AssemblyName>Octodiff</AssemblyName>
     <PackageId>Octodiff</PackageId>
-    <OutputType>Exe</OutputType>
     <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
     <PackageProjectUrl>https://github.com/OctopusDeploy/Octodiff</PackageProjectUrl>
     <PackageLicenseUrl>https://github.com/OctopusDeploy/Octodiff/blob/master/LICENSE.txt</PackageLicenseUrl>
@@ -20,6 +19,7 @@
   </PropertyGroup>
 
   <PropertyGroup Condition=" '$(TargetFramework)' == 'net40' ">
+    <OutputType>Exe</OutputType>
     <PlatformTarget>anycpu</PlatformTarget>
   </PropertyGroup>
 
@@ -29,7 +29,7 @@
     <Reference Include="System" />
   </ItemGroup>
 
-  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard2.0' ">
+  <ItemGroup Condition=" '$(TargetFramework)' == 'netstandard1.5' ">
     <PackageReference Include="Microsoft.NETCore.Runtime.CoreCLR" Version="2.0.0" />
     <PackageReference Include="Microsoft.NETCore.DotNetHostPolicy" Version="2.0.0" />
     <PackageReference Include="System.Runtime" Version="4.3.0" />
@@ -46,4 +46,5 @@
     <PackageReference Include="System.Text.RegularExpressions" Version="4.3.0" />
     <PackageReference Include="System.Reflection.Extensions" Version="4.3.0" />
   </ItemGroup>
+
 </Project>
