@@ -2,8 +2,10 @@
 // TOOLS
 //////////////////////////////////////////////////////////////////////
 #tool "nuget:?package=GitVersion.CommandLine&version=4.0.0-beta0011"
-#addin "MagicChunks"
 
+//////////////////////////////////////////////////////////////////////
+// USINGS
+//////////////////////////////////////////////////////////////////////
 using Path = System.IO.Path;
 
 //////////////////////////////////////////////////////////////////////
@@ -17,6 +19,7 @@ var configuration = Argument("configuration", "Release");
 ///////////////////////////////////////////////////////////////////////////////
 var localPackagesDir = "../LocalPackages";
 var artifactsDir = "./artifacts";
+var packageName = "Octodiff";
 
 GitVersion gitVersionInfo;
 string nugetVersion;
@@ -55,14 +58,18 @@ Task("Clean")
         CleanDirectory(artifactsDir);
         CleanDirectories("./**/bin");
         CleanDirectories("./**/obj");
+        CleanDirectories("./source/**/TestResults");
     });
 
 Task("Restore")
     .IsDependentOn("Clean")
-    .Does(() => DotNetCoreRestore("source", new DotNetCoreRestoreSettings
+    .Does(() =>
     {
-        ArgumentCustomization = args => args.Append("--verbosity normal")
-    }));
+        DotNetCoreRestore("source", new DotNetCoreRestoreSettings
+        {
+            ArgumentCustomization = args => args.Append("--verbosity normal")
+        });
+    });
 
 Task("Build")
     .IsDependentOn("Restore")
@@ -106,34 +113,36 @@ Task("Pack")
             Configuration = configuration,
             OutputDirectory = artifactsDir,
             NoBuild = true,
-            IncludeSymbols = true,
             ArgumentCustomization = args => args.Append($"/p:Version={nugetVersion}")
         });
     });
 
 Task("Publish")
-    .IsDependentOn("Pack")
     .WithCriteria(BuildSystem.IsRunningOnTeamCity)
+    .IsDependentOn("Pack")
     .Does(() =>
     {
-        NuGetPush($"artifacts/Octodiff.{nugetVersion}.nupkg", new NuGetPushSettings {
+        NuGetPush($"{artifactsDir}/{packageName}.{nugetVersion}.nupkg", new NuGetPushSettings {
             Source = "https://octopus.myget.org/F/octopus-dependencies/api/v3/index.json",
             ApiKey = EnvironmentVariable("MyGetApiKey")
         });
-        NuGetPush($"artifacts/Octodiff.{nugetVersion}.symbols.nupkg", new NuGetPushSettings {
-            Source = "https://octopus.myget.org/F/octopus-dependencies/api/v3/index.json",
-            ApiKey = EnvironmentVariable("MyGetApiKey")
-        });
+
+        if (string.IsNullOrWhiteSpace(gitVersionInfo.PreReleaseLabel))
+        {
+            NuGetPush($"{artifactsDir}/{packageName}.{nugetVersion}.nupkg", new NuGetPushSettings {
+                Source = "https://www.nuget.org/api/v2/package",
+                ApiKey = EnvironmentVariable("NuGetApiKey")
+            });
+        }
     });
 
 Task("CopyToLocalPackages")
-    .IsDependentOn("Pack")
     .WithCriteria(BuildSystem.IsLocalBuild)
+    .IsDependentOn("Pack")
     .Does(() =>
     {
         CreateDirectory(localPackagesDir);
-        CopyFiles(Path.Combine(artifactsDir, $"Octodiff.{nugetVersion}.nupkg"), localPackagesDir);
-        CopyFiles(Path.Combine(artifactsDir, $"Octodiff.{nugetVersion}.symbols.nupkg"), localPackagesDir);
+        CopyFiles(Path.Combine(artifactsDir, $"{packageName}.{nugetVersion}.nupkg"), localPackagesDir);
     });
 
 //////////////////////////////////////////////////////////////////////
