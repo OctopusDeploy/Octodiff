@@ -1,8 +1,12 @@
 //////////////////////////////////////////////////////////////////////
 // TOOLS
 //////////////////////////////////////////////////////////////////////
-#tool "nuget:?package=GitVersion.CommandLine&version=4.0.0-beta0007"
-#addin "MagicChunks"
+#tool "nuget:?package=GitVersion.CommandLine&version=4.0.0-beta0011"
+
+//////////////////////////////////////////////////////////////////////
+// USINGS
+//////////////////////////////////////////////////////////////////////
+using Path = System.IO.Path;
 
 //////////////////////////////////////////////////////////////////////
 // ARGUMENTS
@@ -13,24 +17,30 @@ var configuration = Argument("configuration", "Release");
 ///////////////////////////////////////////////////////////////////////////////
 // GLOBAL VARIABLES
 ///////////////////////////////////////////////////////////////////////////////
+var localPackagesDir = "../LocalPackages";
 var artifactsDir = "./artifacts";
-var globalAssemblyFile = "./Octodiff/Properties/AssemblyInfo.cs";
-var projectsToPackage = new []{"./source/Octodiff"};
+var packageName = "Octodiff";
 
-var isContinuousIntegrationBuild = !BuildSystem.IsLocalBuild;
-
-var gitVersionInfo = GitVersion(new GitVersionSettings {
-    OutputType = GitVersionOutput.Json
-});
-
-var nugetVersion = isContinuousIntegrationBuild ? gitVersionInfo.NuGetVersion : "0.0.0";
+GitVersion gitVersionInfo;
+string nugetVersion;
 
 ///////////////////////////////////////////////////////////////////////////////
 // SETUP / TEARDOWN
 ///////////////////////////////////////////////////////////////////////////////
 Setup(context =>
 {
+    gitVersionInfo = GitVersion(new GitVersionSettings {
+        OutputType = GitVersionOutput.Json
+    });
+    nugetVersion = gitVersionInfo.NuGetVersion;
+
+    if(BuildSystem.IsRunningOnTeamCity)
+        BuildSystem.TeamCity.SetBuildNumber(nugetVersion);
+
     Information("Building Octodiff v{0}", nugetVersion);
+    Information("AssemblyVersion -> {0}", gitVersionInfo.AssemblySemVer);
+    Information("AssemblyFileVersion -> {0}", $"{gitVersionInfo.MajorMinorPatch}.0");
+    Information("AssemblyInformationalVersion -> {0}", gitVersionInfo.InformationalVersion);
 });
 
 Teardown(context =>
@@ -42,131 +52,105 @@ Teardown(context =>
 //  PRIVATE TASKS
 //////////////////////////////////////////////////////////////////////
 
-Task("__Default")
-    .IsDependentOn("__Clean")
-    .IsDependentOn("__Restore")
-    .IsDependentOn("__UpdateAssemblyVersionInformation")
-    .IsDependentOn("__Build")
-    .IsDependentOn("__Test")
-    .IsDependentOn("__UpdateProjectJsonVersion")
-    .IsDependentOn("__Pack")
-    .IsDependentOn("__Publish");
-
-Task("__Clean")
+Task("Clean")
     .Does(() =>
-{
-    CleanDirectory(artifactsDir);
-    CleanDirectories("./**/bin");
-    CleanDirectories("./**/obj");
-});
-
-Task("__Restore")
-    .Does(() => DotNetCoreRestore());
-
-Task("__UpdateAssemblyVersionInformation")
-    .WithCriteria(isContinuousIntegrationBuild)
-    .Does(() =>
-{
-     GitVersion(new GitVersionSettings {
-        UpdateAssemblyInfo = true,
-        UpdateAssemblyInfoFilePath = globalAssemblyFile
-    });
-
-    Information("AssemblyVersion -> {0}", gitVersionInfo.AssemblySemVer);
-    Information("AssemblyFileVersion -> {0}", $"{gitVersionInfo.MajorMinorPatch}.0");
-    Information("AssemblyInformationalVersion -> {0}", gitVersionInfo.InformationalVersion);
-});
-
-Task("__Build")
-    .Does(() =>
-{
-    DotNetCoreBuild("**/project.json", new DotNetCoreBuildSettings
     {
-        Configuration = configuration
+        CleanDirectory(artifactsDir);
+        CleanDirectories("./**/bin");
+        CleanDirectories("./**/obj");
+        CleanDirectories("./source/**/TestResults");
     });
-});
 
-Task("__Test")
+Task("Restore")
+    .IsDependentOn("Clean")
     .Does(() =>
-{
-    GetFiles("**/*Tests/project.json")
-        .ToList()
-        .ForEach(testProjectFile => 
+    {
+        DotNetCoreRestore("source", new DotNetCoreRestoreSettings
         {
-            DotNetCoreTest(testProjectFile.ToString(), new DotNetCoreTestSettings
+            ArgumentCustomization = args => args.Append("--verbosity normal")
+        });
+    });
+
+Task("Build")
+    .IsDependentOn("Restore")
+    .Does(() =>
+    {
+        DotNetCoreBuild("./source/Octodiff.sln", new DotNetCoreBuildSettings
+        {
+            Configuration = configuration,
+            ArgumentCustomization = args => args
+                .Append($"/p:Version={nugetVersion}")
+                .Append($"/p:InformationalVersion={gitVersionInfo.InformationalVersion}")
+                .Append("--verbosity normal")
+        });
+    });
+
+Task("Test")
+    .IsDependentOn("Build")
+    .Does(() =>
+    {
+        GetFiles("./source/**/*Tests.csproj")
+            .ToList()
+            .ForEach(testProjectFile =>
             {
-                Configuration = configuration
+                DotNetCoreTest(testProjectFile.ToString(), new DotNetCoreTestSettings
+                {
+                    Configuration = configuration,
+                    NoBuild = true,
+                    ArgumentCustomization = args => args
+                        .Append("--logger:trx")
+                        .Append("--verbosity normal")
+                });
             });
-        });
-});
+    });
 
-Task("__UpdateProjectJsonVersion")
-    .WithCriteria(isContinuousIntegrationBuild)
+Task("Pack")
+    .IsDependentOn("Test")
     .Does(() =>
-{
-    foreach(var projectToPackage in projectsToPackage)
     {
-        var projectToPackagePackageJson = $"{projectToPackage}/project.json";
-        Information("Updating {0} version -> {1}", projectToPackagePackageJson, nugetVersion);
-
-        TransformConfig(projectToPackagePackageJson, projectToPackagePackageJson, new TransformationCollection {
-            { "version", nugetVersion }
-        });
-    };
-});
-
-Task("__Pack")
-    .Does(() =>
-{
-    foreach(var projectToPackage in projectsToPackage)
-    {
-        DotNetCorePack(projectToPackage, new DotNetCorePackSettings
+        DotNetCorePack("./source/OctoDiff", new DotNetCorePackSettings
         {
             Configuration = configuration,
             OutputDirectory = artifactsDir,
-            NoBuild = true
+            NoBuild = true,
+            ArgumentCustomization = args => args.Append($"/p:Version={nugetVersion}")
         });
-    };
-});
+    });
 
-Task("__Publish")
-    .WithCriteria(isContinuousIntegrationBuild)
+Task("Publish")
+    .WithCriteria(BuildSystem.IsRunningOnTeamCity)
+    .IsDependentOn("Pack")
     .Does(() =>
-{
-    var isPullRequest = !String.IsNullOrEmpty(EnvironmentVariable("APPVEYOR_PULL_REQUEST_NUMBER"));
-    var isMasterBranch = EnvironmentVariable("APPVEYOR_REPO_BRANCH") == "master" && !isPullRequest;
-    var shouldPushToMyGet = !BuildSystem.IsLocalBuild;
-    var shouldPushToNuGet = !BuildSystem.IsLocalBuild && isMasterBranch;
-
-    if (shouldPushToMyGet)
     {
-        NuGetPush("artifacts/Octodiff." + nugetVersion + ".nupkg", new NuGetPushSettings {
+        NuGetPush($"{artifactsDir}/{packageName}.{nugetVersion}.nupkg", new NuGetPushSettings {
             Source = "https://octopus.myget.org/F/octopus-dependencies/api/v3/index.json",
             ApiKey = EnvironmentVariable("MyGetApiKey")
         });
-        NuGetPush("artifacts/Octodiff." + nugetVersion + ".symbols.nupkg", new NuGetPushSettings {
-            Source = "https://octopus.myget.org/F/octopus-dependencies/api/v3/index.json",
-            ApiKey = EnvironmentVariable("MyGetApiKey")
-        });
-    }
-//    if (shouldPushToNuGet)
-//    {
-//        NuGetPush("artifacts/Octodiff." + nugetVersion + ".nupkg", new NuGetPushSettings {
-//            Source = "https://www.nuget.org/api/v2/package",
-//            ApiKey = EnvironmentVariable("NuGetApiKey")
-//        });
-//        NuGetPush("artifacts/Octodiff." + nugetVersion + ".symbols.nupkg", new NuGetPushSettings {
-//            Source = "https://www.nuget.org/api/v2/package",
-//            ApiKey = EnvironmentVariable("NuGetApiKey")
-//        });
-//    }
-});
+
+        if (string.IsNullOrWhiteSpace(gitVersionInfo.PreReleaseLabel))
+        {
+            NuGetPush($"{artifactsDir}/{packageName}.{nugetVersion}.nupkg", new NuGetPushSettings {
+                Source = "https://www.nuget.org/api/v2/package",
+                ApiKey = EnvironmentVariable("NuGetApiKey")
+            });
+        }
+    });
+
+Task("CopyToLocalPackages")
+    .WithCriteria(BuildSystem.IsLocalBuild)
+    .IsDependentOn("Pack")
+    .Does(() =>
+    {
+        CreateDirectory(localPackagesDir);
+        CopyFiles(Path.Combine(artifactsDir, $"{packageName}.{nugetVersion}.nupkg"), localPackagesDir);
+    });
 
 //////////////////////////////////////////////////////////////////////
 // TASKS
 //////////////////////////////////////////////////////////////////////
 Task("Default")
-    .IsDependentOn("__Default");
+    .IsDependentOn("CopyToLocalPackages")
+    .IsDependentOn("Publish");
 
 //////////////////////////////////////////////////////////////////////
 // EXECUTION
