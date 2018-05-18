@@ -152,6 +152,52 @@ Octodiff uses the following exit codes:
  - `3` - internal error or unhandled situation
  - `4` - usage problem (you did something wrong, maybe passing the wrong file)
 
+## Using OctoDiff classes within your own application
+
+To use the OctoDiff classes to create signature/delta/final files from within your own application, you can use the below example which creates the signature and delta file and then applies the delta file to create the new file.
+
+```
+// Create signature file
+var signatureBaseFilePath = @"C:\OctoDiffExample\MyPackage.1.0.0.zip";
+var signatureFilePath = @"C:\OctoDiffExample\Output\MyPackage.1.0.0.zip.octosig";
+var signatureOutputDirectory = Path.GetDirectoryName(signatureFilePath);
+if(!Directory.Exists(signatureOutputDirectory))
+	Directory.CreateDirectory(signatureOutputDirectory);
+var signatureBuilder = new SignatureBuilder();
+using (var basisStream = new FileStream(signatureBaseFilePath, FileMode.Open, FileAccess.Read, FileShare.Read))
+using (var signatureStream = new FileStream(signatureFilePath, FileMode.Create, FileAccess.Write, FileShare.Read))
+{
+	signatureBuilder.Build(basisStream, new SignatureWriter(signatureStream));
+}
+
+// Create delta file
+var newFilePath = @"C:\OctoDiffExample\MyPackage.1.0.1.zip";
+var deltaFilePath = @"C:\OctoDiffExample\Output\MyPackage.1.0.1.zip.octodelta";
+var deltaOutputDirectory = Path.GetDirectoryName(deltaFilePath);
+if(!Directory.Exists(deltaOutputDirectory))
+	Directory.CreateDirectory(deltaOutputDirectory);
+var deltaBuilder = new DeltaBuilder();
+using(var newFileStream = new FileStream(newFilePath, FileMode.Open, FileAccess.Read, FileShare.Read))
+using(var signatureFileStream = new FileStream(signatureFilePath, FileMode.Open, FileAccess.Read, FileShare.Read))
+using(var deltaStream = new FileStream(deltaFilePath, FileMode.Create, FileAccess.Write, FileShare.Read))
+{
+	deltaBuilder.BuildDelta(newFileStream, new SignatureReader(signatureFileStream, new ConsoleProgressReporter()), new AggregateCopyOperationsDecorator(new BinaryDeltaWriter(deltaStream)));
+}
+
+// Apply delta file to create new file
+var newFilePath2 = @"C:\OctoDiffExample\Output\MyPackage.1.0.1.zip";
+var newFileOutputDirectory = Path.GetDirectoryName(newFilePath2);
+if(!Directory.Exists(newFileOutputDirectory))
+	Directory.CreateDirectory(newFileOutputDirectory);
+var deltaApplier = new DeltaApplier { SkipHashCheck = false };
+using(var basisStream = new FileStream(signatureBaseFilePath, FileMode.Open, FileAccess.Read, FileShare.Read))
+using(var deltaStream = new FileStream(deltaFilePath, FileMode.Open, FileAccess.Read, FileShare.Read))
+using(var newFileStream = new FileStream(newFilePath2, FileMode.Create, FileAccess.ReadWrite, FileShare.Read))
+{
+	deltaApplier.Apply(basisStream, new BinaryDeltaReader(deltaStream, new ConsoleProgressReporter()), newFileStream);
+}
+```
+
 ## Development
 You need:
 - VSCode or Visual Studio 15.3 to compile the solution
