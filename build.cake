@@ -123,8 +123,8 @@ Task("Publish")
     .Does(() =>
     {
         NuGetPush($"{artifactsDir}/{packageName}.{nugetVersion}.nupkg", new NuGetPushSettings {
-            Source = "https://octopus.myget.org/F/octopus-dependencies/api/v3/index.json",
-            ApiKey = EnvironmentVariable("MyGetApiKey")
+            Source = "https://f.feedz.io/octopus-deploy/dependencies/nuget",
+            ApiKey = EnvironmentVariable("FeedzIoApiKey")
         });
 
         if (string.IsNullOrWhiteSpace(gitVersionInfo.PreReleaseLabel))
