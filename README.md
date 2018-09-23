@@ -156,7 +156,7 @@ Octodiff uses the following exit codes:
 
 To use the OctoDiff classes to create signature/delta/final files from within your own application, you can use the below example which creates the signature and delta file and then applies the delta file to create the new file.
 
-```
+```csharp
 // Create signature file
 var signatureBaseFilePath = @"C:\OctoDiffExample\MyPackage.1.0.0.zip";
 var signatureFilePath = @"C:\OctoDiffExample\Output\MyPackage.1.0.0.zip.octosig";
