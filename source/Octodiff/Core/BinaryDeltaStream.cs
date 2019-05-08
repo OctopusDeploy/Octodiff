@@ -9,7 +9,7 @@ using Octodiff.Diagnostics;
 namespace Octodiff.Core
 {
 
-    public class BinaryDeltaStream : IDeltaStream
+    public class BinaryDeltaStream : Stream, IDeltaStream
     {
         class CommandData
         {
@@ -25,7 +25,9 @@ namespace Octodiff.Core
         private IHashAlgorithm hashAlgorithm;
         private bool hasReadMetadata;
         SortedList<long, CommandData> commands = new SortedList<long, CommandData>();
-        public long Length { get; private set; }
+
+        private long _length;
+        public override long Length { get { EnsureMetadata(); return _length; } }
 
         private Func<byte[], long, int, int?, int> OriginRead { get; }
         private Func<byte[], long, int, int?, int> DeltaRead { get; }
@@ -46,20 +48,6 @@ namespace Octodiff.Core
             };
         }
 
-        public BinaryDeltaStream(BinaryDeltaStream basisStream, Stream delta)
-        {
-            OriginRead = (byte[] buffer, long startBytes, int offset, int? count) =>
-            {
-                return basisStream.Read(buffer, startBytes, offset, count);
-            };
-            DeltaRead = (byte[] buffer, long startBytes, int offset, int? count) =>
-            {
-                reader.BaseStream.Seek(startBytes, SeekOrigin.Begin);
-                return reader.BaseStream.Read(buffer, offset, count ?? buffer.Length);
-            };
-            this.reader = new BinaryReader(delta);
-        }
-
         public byte[] ExpectedHash
         {
             get
@@ -78,6 +66,13 @@ namespace Octodiff.Core
             }
         }
 
+        public override bool CanRead => true;
+
+        public override bool CanSeek => true;
+
+        public override bool CanWrite => false;
+
+        public override long Position { get; set; } = 0;
 
         void EnsureMetadata()
         {
@@ -122,6 +117,7 @@ namespace Octodiff.Core
                         DestinationFileLocation = outputLocation,
                         Length = length,
                         CommandStartLocation = reader.BaseStream.Position - (sizeof(long) * 2),
+                        SrcLocation = start
                     });
                     outputLocation += length;
                 }
@@ -134,21 +130,19 @@ namespace Octodiff.Core
                         DestinationFileLocation = outputLocation,
                         Length = length,
                         CommandStartLocation = reader.BaseStream.Position - (sizeof(long) * 2),
-
+                        SrcLocation = reader.BaseStream.Position
                     });
                     reader.BaseStream.Seek(length, SeekOrigin.Current);
                     outputLocation += length;
 
                 }
             }
-            Length = commands.Last().Key + commands.Last().Value.Length;
-
-
+            _length = commands.Last().Key + commands.Last().Value.Length;
 
             hasReadMetadata = true;
         }
 
-        public int Read(byte[] buffer, long startBytes, int offset = 0, int? count = null)
+        public int ReadAt(byte[] buffer, long startBytes, int offset = 0, int? count = null)
         {
             var localCount = count == null ? buffer.Length - offset : Math.Min(buffer.Length - offset, count.Value);
             var fileLength = reader.BaseStream.Length;
@@ -174,6 +168,67 @@ namespace Octodiff.Core
 
             }
             return currentBytes;
+        }
+
+        public override long Seek(long offset, SeekOrigin origin)
+        {
+            long targetPostion;
+            switch (origin)
+            {
+                case SeekOrigin.Begin:
+                    targetPostion = offset;
+                    break;
+                case SeekOrigin.Current:
+                    targetPostion = Position + offset;
+                    break;
+                case SeekOrigin.End:
+                    targetPostion = Length + offset;
+                    break;
+                default:
+                    throw new ArgumentException("Invalid SeekOrigin");
+            }
+
+            if (targetPostion < 0)
+                throw new IOException("The resulting position must be greater than zero.");
+            if (Length < targetPostion)
+                throw new IOException("The resulting position must be less than the length");
+
+            Position = targetPostion;
+            return Position;
+        }
+
+        public override int Read(byte[] buffer, int offset, int count)
+        {
+            if(Position >= Length - 1)
+            {
+                return 0;
+            }
+            int move = ReadAt(buffer, Position, offset, count);
+            Position += move;
+            return move;
+        }
+
+        public bool VerifyHashInMemory()
+        {
+            Seek(0L, SeekOrigin.Begin);
+            var actualHash = HashAlgorithm.ComputeHash(this);
+
+            return StructuralComparisons.StructuralEqualityComparer.Equals(ExpectedHash, actualHash);
+        }
+
+        public override void Flush()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void SetLength(long value)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void Write(byte[] buffer, int offset, int count)
+        {
+            throw new NotImplementedException();
         }
     }
 }

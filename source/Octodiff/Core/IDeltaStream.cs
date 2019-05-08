@@ -6,6 +6,6 @@
         IHashAlgorithm HashAlgorithm { get; }
         long Length { get; }
 
-        int Read(byte[] buffer, long startBytes, int offset = 0, int? count = null);
+        int ReadAt(byte[] buffer, long startBytes, int offset = 0, int? count = null);
     }
 }

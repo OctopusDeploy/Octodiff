@@ -33,7 +33,7 @@ namespace Octodiff.Core
             var buffer = new byte[4 * 1024 * 1024];
             var offset = 0L;
             var currentSize = 0;
-            while ((currentSize = delta.Read(buffer, offset)) > 0)
+            while ((currentSize = delta.ReadAt(buffer, offset)) > 0)
             {
                 outputStream.Write(buffer, 0, currentSize);
                 offset += currentSize;
@@ -61,7 +61,6 @@ namespace Octodiff.Core
 
             return StructuralComparisons.StructuralEqualityComparer.Equals(sourceFileHash, actualHash);
         }
-
 
         public static void Apply(this IDeltaReader delta, Stream basisFileStream, Stream outputStream, bool SkipHashCheck = false)
         {
