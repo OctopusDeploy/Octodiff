@@ -10,6 +10,7 @@ using Nuke.Common.IO;
 using Nuke.Common.ProjectModel;
 using Nuke.Common.Tooling;
 using Nuke.Common.Tools.DotNet;
+using Nuke.Common.Tools.NuGet;
 using Nuke.Common.Utilities.Collections;
 using Nuke.OctoVersion;
 using OctoVersion.Core;
@@ -25,13 +26,13 @@ class Build : NukeBuild
     [Parameter("Configuration to build - Default is 'Debug' (local) or 'Release' (server)")]
     readonly Configuration Configuration = IsLocalBuild ? Configuration.Debug : Configuration.Release;
 
-    [GitRepository] readonly GitRepository GitRepository;
-
     [NukeOctoVersion] readonly OctoVersionInfo OctoVersionInfo;
 
-    [Solution] readonly Solution Solution;
+    [Solution(GenerateProjects = true)] readonly Solution Solution;
 
     [Parameter("Test filter expression", Name = "where")] readonly string TestFilter = string.Empty;
+    [Parameter, Secret] readonly string FeedzIoApiKey;
+    [Parameter, Secret] readonly string NuGetApiKey;
 
     AbsolutePath SourceDirectory => RootDirectory / "source";
     AbsolutePath ArtifactsDirectory => RootDirectory / "artifacts";
@@ -41,11 +42,12 @@ class Build : NukeBuild
         .Before(Restore)
         .Executes(() =>
         {
-            SourceDirectory.GlobDirectories("**/bin", "**/obj").ForEach(DeleteDirectory);
+            SourceDirectory.GlobDirectories("**/bin", "**/obj", "./source/**/TestResults").ForEach(DeleteDirectory);
             EnsureCleanDirectory(ArtifactsDirectory);
         });
 
     Target Restore => _ => _
+        .DependsOn(Clean)
         .Executes(() =>
         {
             DotNetRestore(s => s
@@ -65,20 +67,6 @@ class Build : NukeBuild
                 .EnableNoRestore());
         });
 
-    Target Pack => _ => _
-        .DependsOn(Compile)
-        .DependsOn()
-        .Executes(() =>
-        {
-            DotNetPack(_ => _
-                .SetProject(Solution)
-                .SetConfiguration(Configuration)
-                .SetOutputDirectory(ArtifactsDirectory)
-                .EnableNoBuild()
-                .AddProperty("Version", OctoVersionInfo.FullSemVer)
-            );
-        });
-
     Target Test => _ => _
         .DependsOn(Compile)
         .Executes(() =>
@@ -95,10 +83,45 @@ class Build : NukeBuild
                 .ForEach(x => CopyFileToDirectory(x, ArtifactsDirectory, FileExistsPolicy.Overwrite));
         });
 
+    Target Pack => _ => _
+        .DependsOn(Compile)
+        .DependsOn(Test)
+        .Executes(() =>
+        {
+            DotNetPack(_ => _
+                .SetProject(Solution)
+                .SetConfiguration(Configuration)
+                .SetOutputDirectory(ArtifactsDirectory)
+                .EnableNoBuild()
+                .AddProperty("Version", OctoVersionInfo.FullSemVer)
+            );
+        });
+
+    Target Publish => _ => _
+        .OnlyWhenStatic(() => IsServerBuild)
+        .DependsOn(Pack)
+        .TriggeredBy(Pack)
+        .Executes(() =>
+        {
+            var packageName = Solution.Octodiff.Name;
+            NuGetTasks.NuGetPush(_ => _
+                .SetTargetPath(ArtifactsDirectory / $"{packageName}.{OctoVersionInfo.FullSemVer}.nupkg")
+                .SetSource("https://f.feedz.io/octopus-deploy/dependencies/nuget")
+                .SetApiKey(FeedzIoApiKey)
+            );
+            if (string.IsNullOrWhiteSpace(OctoVersionInfo.PreReleaseTagWithDash))
+            {
+                NuGetTasks.NuGetPush(_ => _
+                    .SetTargetPath(ArtifactsDirectory / $"{packageName}.{OctoVersionInfo.FullSemVer}.nupkg")
+                    .SetSource("https://www.nuget.org/api/v2/package")
+                    .SetApiKey(NuGetApiKey));
+            }
+        });
+
     Target CopyToLocalPackages => _ => _
         .OnlyWhenStatic(() => IsLocalBuild)
         .TriggeredBy(Compile)
-        .DependsOn(Pack)
+        .DependsOn(Compile)
         .Executes(() =>
         {
             GlobFiles(ArtifactsDirectory, $"*.{OctoVersionInfo.FullSemVer}.nupkg")
@@ -110,5 +133,5 @@ class Build : NukeBuild
     /// - JetBrains Rider            https://nuke.build/rider
     /// - Microsoft VisualStudio     https://nuke.build/visualstudio
     /// - Microsoft VSCode           https://nuke.build/vscode
-    public static int Main() => Execute<Build>(x => x.CopyToLocalPackages, x => x.Test);
+    public static int Main() => Execute<Build>(x => x.Pack);
 }

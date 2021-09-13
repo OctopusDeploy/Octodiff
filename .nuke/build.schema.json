@@ -18,6 +18,10 @@
           "type": "boolean",
           "description": "Indicates to continue a previously failed build attempt"
         },
+        "FeedzIoApiKey": {
+          "type": "string",
+          "default": "Secrets must be entered via 'nuke :secret [profile]'"
+        },
         "Help": {
           "type": "boolean",
           "description": "Shows the help text for this build assembly"
@@ -45,6 +49,10 @@
         "NoLogo": {
           "type": "boolean",
           "description": "Disables displaying the NUKE logo"
+        },
+        "NuGetApiKey": {
+          "type": "string",
+          "default": "Secrets must be entered via 'nuke :secret [profile]'"
         },
         "Partition": {
           "type": "string",
@@ -75,6 +83,7 @@
               "Compile",
               "CopyToLocalPackages",
               "Pack",
+              "Publish",
               "Restore",
               "Test"
             ]
@@ -94,6 +103,7 @@
               "Compile",
               "CopyToLocalPackages",
               "Pack",
+              "Publish",
               "Restore",
               "Test"
             ]
