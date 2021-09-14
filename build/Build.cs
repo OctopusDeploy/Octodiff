@@ -120,7 +120,7 @@ class Build : NukeBuild
 
     Target CopyToLocalPackages => _ => _
         .OnlyWhenStatic(() => IsLocalBuild)
-        .TriggeredBy(Compile)
+        .TriggeredBy(Pack)
         .DependsOn(Compile)
         .Executes(() =>
         {
