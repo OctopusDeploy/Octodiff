@@ -100,7 +100,6 @@ class Build : NukeBuild
     Target Publish => _ => _
         .OnlyWhenStatic(() => IsServerBuild)
         .DependsOn(Pack)
-        .TriggeredBy(Pack)
         .Executes(() =>
         {
             var packageName = Solution.Octodiff.Name;
@@ -120,8 +119,7 @@ class Build : NukeBuild
 
     Target CopyToLocalPackages => _ => _
         .OnlyWhenStatic(() => IsLocalBuild)
-        .TriggeredBy(Pack)
-        .DependsOn(Compile)
+        .DependsOn(Pack)
         .Executes(() =>
         {
             GlobFiles(ArtifactsDirectory, $"*.{OctoVersionInfo.FullSemVer}.nupkg")
@@ -133,5 +131,7 @@ class Build : NukeBuild
     /// - JetBrains Rider            https://nuke.build/rider
     /// - Microsoft VisualStudio     https://nuke.build/visualstudio
     /// - Microsoft VSCode           https://nuke.build/vscode
-    public static int Main() => Execute<Build>(x => x.Pack);
+    public static int Main() => Execute<Build>(
+        x => x.Publish,
+        x => x.CopyToLocalPackages);
 }
