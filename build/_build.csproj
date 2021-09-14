@@ -15,4 +15,8 @@
     <PackageReference Include="Nuke.OctoVersion" Version="0.2.560" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageDownload Include="NuGet.CommandLine" Version="[5.11.0]" />
+  </ItemGroup>
+
 </Project>
