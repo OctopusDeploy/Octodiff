@@ -25,7 +25,7 @@ namespace Octodiff.Tests
             Assert.That(ExitCode, Is.EqualTo(0));
 
             Run("explain-delta " + name + ".delta");
-            Assert.That(Regex.IsMatch(Output, "^Copy: 0 to ([0-9A-F]+)\r\n$"));
+            Assert.That(Regex.IsMatch(Output, $"^Copy: 0 to ([0-9A-F]+){Environment.NewLine}$"));
             Assert.That(Output, Does.Not.Contain("Data:"));
         }
 
@@ -47,7 +47,7 @@ namespace Octodiff.Tests
             Assert.That(ExitCode, Is.EqualTo(0));
 
             Run("explain-delta " + name + ".delta");
-            Assert.That(Regex.IsMatch(Output, "Copy: ([0-9A-F]+) to ([0-9A-F]+)\r\n"));
+            Assert.That(Regex.IsMatch(Output, $"Copy: ([0-9A-F]+) to ([0-9A-F]+){Environment.NewLine}"));
             Assert.That(Regex.IsMatch(Output, "Data: \\(([0-9]+) bytes\\)"));
 
             var originalSize = new FileInfo(name).Length;
