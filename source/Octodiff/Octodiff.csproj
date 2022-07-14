@@ -17,7 +17,6 @@
     <Description>100% C# implementation of remote delta compression based on the rsync algorithm</Description>
     <Product>Octodiff</Product>
   </PropertyGroup>
-
   <ItemGroup>
     <None Include="..\..\LICENSE.txt" Pack="true" PackagePath="$(PackageLicenseFile)" />
   </ItemGroup>

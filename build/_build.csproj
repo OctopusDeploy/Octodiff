@@ -11,11 +11,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Nuke.Common" Version="5.3.0" />
-    <PackageReference Include="Nuke.OctoVersion" Version="0.2.560" />
+    <PackageReference Include="Nuke.Common" Version="6.1.2" />
   </ItemGroup>
 
   <ItemGroup>
+    <PackageDownload Include="OctoVersion.Tool" Version="[0.2.951]" />
     <PackageDownload Include="NuGet.CommandLine" Version="[5.11.0]" />
   </ItemGroup>
 
