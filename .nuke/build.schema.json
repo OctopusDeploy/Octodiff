@@ -86,7 +86,6 @@
               "CopyToLocalPackages",
               "Default",
               "Pack",
-              "Publish",
               "Restore",
               "Test"
             ]
@@ -108,7 +107,6 @@
               "CopyToLocalPackages",
               "Default",
               "Pack",
-              "Publish",
               "Restore",
               "Test"
             ]

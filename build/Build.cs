@@ -108,26 +108,6 @@ class Build : NukeBuild
             );
         });
 
-    Target Publish => _ => _
-        .OnlyWhenStatic(() => IsServerBuild)
-        .DependsOn(Pack)
-        .Executes(() =>
-        {
-            var packageName = Solution.Name;
-            NuGetTasks.NuGetPush(_ => _
-                .SetTargetPath(ArtifactsDirectory / $"{packageName}.{OctoVersionInfo.FullSemVer}.nupkg")
-                .SetSource("https://f.feedz.io/octopus-deploy/dependencies/nuget")
-                .SetApiKey(FeedzIoApiKey)
-            );
-            if (string.IsNullOrWhiteSpace(OctoVersionInfo.PreReleaseTagWithDash))
-            {
-                NuGetTasks.NuGetPush(_ => _
-                    .SetTargetPath(ArtifactsDirectory / $"{packageName}.{OctoVersionInfo.FullSemVer}.nupkg")
-                    .SetSource("https://www.nuget.org/api/v2/package")
-                    .SetApiKey(NuGetApiKey));
-            }
-        });
-
     Target CopyToLocalPackages => _ => _
         .OnlyWhenStatic(() => IsLocalBuild)
         .DependsOn(Pack)
