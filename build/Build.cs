@@ -32,8 +32,6 @@ class Build : NukeBuild
     public OctoVersionInfo OctoVersionInfo;
     
     [Parameter("Test filter expression", Name = "where")] readonly string TestFilter = string.Empty;
-    [Parameter, Secret] readonly string FeedzIoApiKey;
-    [Parameter, Secret] readonly string NuGetApiKey;
 
     AbsolutePath SourceDirectory => RootDirectory / "source";
     AbsolutePath ArtifactsDirectory => RootDirectory / "artifacts";
