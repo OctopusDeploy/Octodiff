@@ -1,5 +1,6 @@
 // ReSharper disable RedundantUsingDirective
 using Nuke.Common;
+using Nuke.Common.CI;
 using Nuke.Common.Execution;
 using Nuke.Common.IO;
 using Nuke.Common.ProjectModel;
@@ -12,7 +13,7 @@ using static Nuke.Common.IO.FileSystemTasks;
 using static Nuke.Common.Tools.DotNet.DotNetTasks;
 
 [CheckBuildProjectConfigurations]
-[UnsetVisualStudioEnvironmentVariables]
+[ShutdownDotNetAfterServerBuild]
 class Build : NukeBuild
 {
     const string CiBranchNameEnvVariable = "OCTOVERSION_CurrentBranch";
@@ -28,7 +29,7 @@ class Build : NukeBuild
     string BranchName { get; set; }
     
 
-    [OctoVersion(BranchParameter = nameof(BranchName), AutoDetectBranchParameter = nameof(AutoDetectBranch))] 
+    [OctoVersion(BranchParameter = nameof(BranchName), AutoDetectBranchParameter = nameof(AutoDetectBranch), Framework = "net6.0")] 
     public OctoVersionInfo OctoVersionInfo;
     
     [Parameter("Test filter expression", Name = "where")] readonly string TestFilter = string.Empty;
@@ -106,24 +107,10 @@ class Build : NukeBuild
             );
         });
 
-    Target CopyToLocalPackages => _ => _
-        .OnlyWhenStatic(() => IsLocalBuild)
-        .DependsOn(Pack)
-        .Executes(() =>
-        {
-            EnsureExistingDirectory(LocalPackagesDirectory);
-            CopyFileToDirectory(ArtifactsDirectory / $"{Solution.Name}.{OctoVersionInfo.FullSemVer}.nupkg",
-                LocalPackagesDirectory, FileExistsPolicy.Overwrite);
-        });
-
-    Target Default => _ => _
-        .DependsOn(Pack)
-        .DependsOn(CopyToLocalPackages);
-
     /// Support plugins are available for:
     /// - JetBrains ReSharper        https://nuke.build/resharper
     /// - JetBrains Rider            https://nuke.build/rider
     /// - Microsoft VisualStudio     https://nuke.build/visualstudio
     /// - Microsoft VSCode           https://nuke.build/vscode
-    public static int Main() => Execute<Build>(x => x.Default);
+    public static int Main() => Execute<Build>(x => x.Pack);
 }
