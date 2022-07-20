@@ -48,7 +48,8 @@ jobs:
       with:
         dotnet-version: '6.0.x'
 
-    - name: Nuke Build
+    - name: Nuke Build 🏗
+      id: build
       run: ./build.ps1
 
     - name: Install Octopus CLI 🐙
