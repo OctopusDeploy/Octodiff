@@ -17,7 +17,7 @@ on:
 
 env:
   OCTOVERSION_CurrentBranch: ${{ github.head_ref || github.ref }}
-  OCTOVERSION_Patch: ${{ github.run_number }}
+  #OCTOVERSION_Patch: ${{ github.run_number }}
 
 jobs:
   test-linux:
