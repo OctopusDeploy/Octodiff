@@ -13,7 +13,21 @@ env:
   OCTOVERSION_Patch: ${{ github.run_number }}
 
 jobs:
-  build-windows:    
+  test-linux:
+    runs-io: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0
+    - name: Setup NET6.0
+      uses: actions/setup-dotnet@v2
+      with:
+        dotnet-version: '6.0.x'
+    - name: Test NET6
+      run: ./build.sh -target Test
+
+  build-release-windows:
+    needs: test-linux
     runs-on: windows-latest
     steps:
     - uses: actions/checkout@v2
@@ -23,5 +37,5 @@ jobs:
       uses: actions/setup-dotnet@v2
       with:
         dotnet-version: '6.0.x'
-    - name: Test Windows
-      run: ./build.ps1 -target Test
+    - name: Nuke Build
+      run: ./build.ps1
