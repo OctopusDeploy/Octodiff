@@ -1,0 +1,21 @@
+on:
+  push:
+    branches:
+      - '**'
+    tags-ignore:
+      - '**'
+  # pull_request:
+  #   types: [opened, synchronize, reopened]
+  workflow_dispatch:
+
+jobs:
+  build-windows:    
+    runs-on: windows-2019
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup NET6.0
+      uses: actions/setup-dotnet@v2
+        with:
+          dotnet-version: '6.0.x'
+    - name: Test Windows
+      run: build.cmd -target Test
