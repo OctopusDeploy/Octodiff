@@ -44,8 +44,7 @@ namespace Octodiff.Tests.Util
 
         string GetExePath()
         {
-            // ReSharper disable once AssignNullToNotNullAttribute
-            return Path.Combine(Path.GetDirectoryName(new Uri(typeof(CommandLineFixture).GetTypeInfo().Assembly.Location).LocalPath), "Octodiff.Tests.dll");
+            return Path.Combine(Path.GetDirectoryName(new Uri(typeof(CommandLineFixture).GetTypeInfo().Assembly.CodeBase).LocalPath), "Octodiff.Tests.dll");
         }
 
         string GetCurrentDirectory()
