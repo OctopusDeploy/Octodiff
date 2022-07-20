@@ -36,8 +36,7 @@ class Build : NukeBuild
 
     AbsolutePath SourceDirectory => RootDirectory / "source";
     AbsolutePath ArtifactsDirectory => RootDirectory / "artifacts";
-    AbsolutePath LocalPackagesDirectory => RootDirectory / ".." / "LocalPackages";
-
+    
     Target Clean => _ => _
         .Before(Restore)
         .Executes(() =>
@@ -57,8 +56,7 @@ class Build : NukeBuild
     Target CalculateVersion => _ => _
         .Executes(() =>
         {
-            
-            //all the magic happens inside `[NukeOctoVersion]` above. we just need a target for TeamCity to call
+            //all the magic happens inside `[OctoVersionInfo]` above.
         });
 
     Target Compile => _ => _
@@ -66,7 +64,7 @@ class Build : NukeBuild
         .DependsOn(Restore)
         .Executes(() =>
         {
-            Log.Information("Building Octopus.Time v{Version}", OctoVersionInfo.FullSemVer);
+            Log.Information("Building Octodiff v{Version}", OctoVersionInfo.FullSemVer);
             DotNetBuild(s => s
                 .SetProjectFile(Solution)
                 .SetConfiguration(Configuration)

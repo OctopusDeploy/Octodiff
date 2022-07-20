@@ -1,11 +1,17 @@
+name: Build, Test, Package and Push
+
+# Controls when the action will run.
 on:
   push:
+    # Triggers the workflow on pull request events and merges/pushes to master
     branches:
-      - '**'
+      - master
     tags-ignore:
       - '**'
-  # pull_request:
-  #   types: [opened, synchronize, reopened]
+    pull_request:
+      types: [opened, synchronize, reopened]
+
+  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
 env:
@@ -18,11 +24,13 @@ jobs:
     steps:
     - uses: actions/checkout@v2
       with:
-        fetch-depth: 0
+        fetch-depth: 0 # all
+
     - name: Setup NET6.0
       uses: actions/setup-dotnet@v2
       with:
         dotnet-version: '6.0.x'
+
     - name: Test NET6
       run: ./build.sh -target Test
 
@@ -32,10 +40,36 @@ jobs:
     steps:
     - uses: actions/checkout@v2
       with:
-        fetch-depth: 0
+        fetch-depth: 0 # all
+
     - name: Setup NET6.0
       uses: actions/setup-dotnet@v2
       with:
         dotnet-version: '6.0.x'
+
     - name: Nuke Build
       run: ./build.ps1
+
+    - name: Install Octopus CLI 🐙
+      uses: OctopusDeploy/install-octopus-cli-action@v1
+      with:
+        version: latest
+      
+    - name: Push to Octopus 🐙
+      uses: OctopusDeploy/push-package-action@v1
+      with:
+        server: ${{ secrets.DEPLOY_URL }}
+        space: Core Platform
+        api_key: ${{ secrets.DEPLOY_API_KEY }}
+        packages: |
+          ./artifacts/Octodiff.${{ steps.build.outputs.octoversion_fullsemver }}.nupkg          
+
+    - name: Create Release in Octopus 🐙
+      uses: OctopusDeploy/create-release-action@v1
+      with:
+        server: ${{ secrets.DEPLOY_URL }}
+        space: Core Platform
+        api_key: ${{ secrets.DEPLOY_API_KEY }}
+        project: "Octodiff"
+        packages: |
+          Octodiff:${{ steps.build.outputs.octoversion_fullsemver }}         
