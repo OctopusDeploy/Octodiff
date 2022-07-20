@@ -8,6 +8,10 @@ on:
   #   types: [opened, synchronize, reopened]
   workflow_dispatch:
 
+env:
+  OCTOVERSION_CurrentBranch: ${{ github.head_ref || github.ref }}
+  OCTOVERSION_Patch: ${{ github.run_number }}
+
 jobs:
   build-windows:    
     runs-on: windows-2019
