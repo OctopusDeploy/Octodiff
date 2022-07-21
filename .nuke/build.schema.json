@@ -6,21 +6,13 @@
     "build": {
       "type": "object",
       "properties": {
-        "Configuration": {
-          "type": "string",
-          "description": "Configuration to build - Default is 'Debug' (local) or 'Release' (server)",
-          "enum": [
-            "Debug",
-            "Release"
-          ]
+        "AutoDetectBranch": {
+          "type": "boolean",
+          "description": "Whether to auto-detect the branch name - this is okay for a local build, but should not be used under CI"
         },
         "Continue": {
           "type": "boolean",
           "description": "Indicates to continue a previously failed build attempt"
-        },
-        "FeedzIoApiKey": {
-          "type": "string",
-          "default": "Secrets must be entered via 'nuke :secret [profile]'"
         },
         "Help": {
           "type": "boolean",
@@ -33,6 +25,7 @@
             "AppVeyor",
             "AzurePipelines",
             "Bamboo",
+            "Bitbucket",
             "Bitrise",
             "GitHubActions",
             "GitLab",
@@ -50,9 +43,9 @@
           "type": "boolean",
           "description": "Disables displaying the NUKE logo"
         },
-        "NuGetApiKey": {
+        "OCTOVERSION_CurrentBranch": {
           "type": "string",
-          "default": "Secrets must be entered via 'nuke :secret [profile]'"
+          "description": "Branch name for OctoVersion to use to calculate the version number. Can be set via the environment variable OCTOVERSION_CurrentBranch"
         },
         "Partition": {
           "type": "string",
@@ -79,11 +72,10 @@
           "items": {
             "type": "string",
             "enum": [
+              "CalculateVersion",
               "Clean",
               "Compile",
-              "CopyToLocalPackages",
               "Pack",
-              "Publish",
               "Restore",
               "Test"
             ]
@@ -99,11 +91,10 @@
           "items": {
             "type": "string",
             "enum": [
+              "CalculateVersion",
               "Clean",
               "Compile",
-              "CopyToLocalPackages",
               "Pack",
-              "Publish",
               "Restore",
               "Test"
             ]

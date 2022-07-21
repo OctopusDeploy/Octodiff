@@ -21,7 +21,7 @@ namespace Octodiff.Tests.Util
             var stdOutBuilder = new StringBuilder();
             var outputBuilder = new StringBuilder();
             var path = GetExePath();
-#if !NET40
+#if !NET462
             args = $"{path} {args}";
             path = "dotnet";
 #endif
@@ -49,8 +49,8 @@ namespace Octodiff.Tests.Util
 
         string GetExePath()
         {
-#if NET40
-            return new Uri(typeof(DeltaBuilder).Assembly.CodeBase).LocalPath;
+#if NET462
+            return new Uri(typeof(DeltaBuilder).Assembly.CodeBase).LocalPath;   
 #else
             return Path.Combine(Path.GetDirectoryName(new Uri(typeof(CommandLineFixture).GetTypeInfo().Assembly.CodeBase).LocalPath), "Octodiff.Tests.dll");
 #endif
@@ -58,7 +58,7 @@ namespace Octodiff.Tests.Util
 
         string GetCurrentDirectory()
         {
-#if NET40
+#if NET462
             return Environment.CurrentDirectory;
 #else
             return System.IO.Directory.GetCurrentDirectory();

@@ -1,0 +1,91 @@
+name: Build, Test, Package and Push
+
+# Controls when the action will run.
+on:
+  push:
+    # Triggers the workflow on pull request events and merges/pushes to master
+    branches:
+      - master
+      - release/*
+    tags-ignore:
+      - '**'
+    
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+env:
+  OCTOVERSION_CurrentBranch: ${{ github.head_ref || github.ref }}
+  #OCTOVERSION_Patch: ${{ github.run_number }}
+
+jobs:
+  test-linux:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0 # all
+
+    - name: Setup NET6.0
+      uses: actions/setup-dotnet@v2
+      with:
+        dotnet-version: '6.0.x'
+
+    - name: Test NET6
+      run: ./build.sh -target Test
+
+  build-release-windows:
+    needs: test-linux
+    runs-on: windows-latest
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0 # all
+
+    - name: Setup NET6.0
+      uses: actions/setup-dotnet@v2
+      with:
+        dotnet-version: '6.0.x'
+
+    - name: Nuke Build 🏗
+      id: build
+      run: ./build.ps1 --verbosity verbose
+
+    - name: Tag release (when not pre-release) 🏷️
+      if: ${{ !contains( steps.build.outputs.octoversion_fullsemver, '-' ) }}
+      uses: actions/github-script@v3
+      with:
+        github-token: ${{ github.token }}
+        script: |
+          github.git.createRef({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            ref: "refs/tags/${{ steps.build.outputs.octoversion_fullsemver }}",
+            sha: context.sha
+          })
+
+    - name: Install Octopus CLI 🐙
+      uses: OctopusDeploy/install-octopus-cli-action@v1
+      with:
+        version: latest
+      
+    - name: Push to Octopus 🐙
+      uses: OctopusDeploy/push-package-action@v1
+      with:
+        server: ${{ secrets.DEPLOY_URL }}
+        space: Core Platform
+        api_key: ${{ secrets.DEPLOY_API_KEY }}
+        packages: |
+          ./artifacts/Octodiff.${{ steps.build.outputs.octoversion_fullsemver }}.nupkg          
+
+    - name: Create Release in Octopus 🐙
+      uses: OctopusDeploy/create-release-action@v1
+      with:
+        server: ${{ secrets.DEPLOY_URL }}
+        space: Core Platform
+        api_key: ${{ secrets.DEPLOY_API_KEY }}
+        project: "Octodiff"
+        packages: |
+          Octodiff:${{ steps.build.outputs.octoversion_fullsemver }}         
