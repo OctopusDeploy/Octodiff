@@ -6,6 +6,7 @@ on:
     # Triggers the workflow on pull request events and merges/pushes to master
     branches:
       - master
+      - release/*
     tags-ignore:
       - '**'
     
@@ -50,7 +51,20 @@ jobs:
 
     - name: Nuke Build 🏗
       id: build
-      run: ./build.ps1
+      run: ./build.ps1 --verbosity verbose
+
+    - name: Tag release (when not pre-release) 🏷️
+      if: ${{ !contains( steps.build.outputs.octoversion_fullsemver, '-' ) }}
+      uses: actions/github-script@v3
+      with:
+        github-token: ${{ github.token }}
+        script: |
+          github.git.createRef({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            ref: "refs/tags/${{ steps.build.outputs.octoversion_fullsemver }}",
+            sha: context.sha
+          })
 
     - name: Install Octopus CLI 🐙
       uses: OctopusDeploy/install-octopus-cli-action@v1
