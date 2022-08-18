@@ -65,7 +65,7 @@ jobs:
     # Adjustment is done prior to Nuke build as OCTOVERSION information is included in the result package.
     - name: Append OCTOVERSION_CurrentBranch with -nightly (for scheduled)
       if: github.event_name == 'schedule'
-      run: echo "OCTOVERSION_CurrentBranch=${{ env.OCTOVERSION_CurrentBranch }}-nightly" >> $GITHUB_ENV
+      run: echo "OCTOVERSION_CurrentBranch=${{ env.OCTOVERSION_CurrentBranch }}-nightly" >> $env:GITHUB_ENV
 
     - name: Nuke Build 🏗
       id: build
@@ -104,10 +104,10 @@ jobs:
       #Set Package Name  
       #GITHUB_REPOSITORY returns owner/repo-name. This will strip owner and retain repo-name. (IE: OctopusDeploy/JavaPropertiesParser = JavaPropertiesParser)      
       run: |
-        echo "OCTOPUSDEPLOY_Space=Core Platform" >> $GITHUB_ENV
-        $repo_name = $env:GITHUB_REPOSITORY.Substring($env:GITHUB_REPOSITORY.lastIndexOf('/')+1)        
-        echo "OCTOPUSDEPLOY_Project=$repo_name" >> $GITHUB_ENV
-        echo "OCTOPUSDEPLOY_Package=$repo_name" >> $GITHUB_ENV
+        echo "OCTOPUSDEPLOY_Space=Core Platform" >> $env:GITHUB_ENV
+        $env:repo_name = $env:GITHUB_REPOSITORY.Substring($env:GITHUB_REPOSITORY.lastIndexOf('/')+1)        
+        echo "OCTOPUSDEPLOY_Project=$env:repo_name" >> $env:GITHUB_ENV
+        echo "OCTOPUSDEPLOY_Package=$env:repo_name" >> $env:GITHUB_ENV
 
     - name: Push to Octopus 🐙
       uses: OctopusDeploy/push-package-action@v1
