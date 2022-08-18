@@ -36,12 +36,14 @@ class Build : NukeBuild
 
     AbsolutePath SourceDirectory => RootDirectory / "source";
     AbsolutePath ArtifactsDirectory => RootDirectory / "artifacts";
+    AbsolutePath TestResultsDirectory => RootDirectory / "TestResults";
     
     Target Clean => _ => _
         .Before(Restore)
         .Executes(() =>
         {
-            SourceDirectory.GlobDirectories("**/bin", "**/obj", "./source/**/TestResults").ForEach(DeleteDirectory);
+            SourceDirectory.GlobDirectories("**/bin", "**/obj").ForEach(DeleteDirectory);
+            DeleteDirectory(TestResultsDirectory);
             EnsureCleanDirectory(ArtifactsDirectory);
         });
 
@@ -85,9 +87,8 @@ class Build : NukeBuild
                 .SetVerbosity(DotNetVerbosity.Normal)
                 .SetFilter(TestFilter)
                 .EnableNoBuild()
-                .EnableNoRestore());
-            SourceDirectory.GlobFiles( "**/*.trx")
-                .ForEach(x => CopyFileToDirectory(x, ArtifactsDirectory, FileExistsPolicy.Overwrite));
+                .EnableNoRestore()
+                .SetResultsDirectory(TestResultsDirectory));
         });
 
     Target Pack => _ => _
