@@ -105,7 +105,7 @@ jobs:
       #GITHUB_REPOSITORY returns owner/repo-name. This will strip owner and retain repo-name. (IE: OctopusDeploy/JavaPropertiesParser = JavaPropertiesParser)      
       run: |
         echo "OCTOPUSDEPLOY_Space=Core Platform" >> $GITHUB_ENV
-        $repo_name = $GITHUB_REPOSITORY.Substring($GITHUB_REPOSITORY.lastIndexOf('/')+1)        
+        $repo_name = $env:GITHUB_REPOSITORY.Substring($env:GITHUB_REPOSITORY.lastIndexOf('/')+1)        
         echo "OCTOPUSDEPLOY_Project=$repo_name" >> $GITHUB_ENV
         echo "OCTOPUSDEPLOY_Package=$repo_name" >> $GITHUB_ENV
 
