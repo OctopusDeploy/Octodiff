@@ -13,6 +13,10 @@ on:
   pull_request:
     types: [opened, synchronize, reopened]
 
+  schedule:
+    # Daily 5am australian/brisbane time
+    - cron: '0 19 * * *'
+
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
@@ -36,6 +40,15 @@ jobs:
     - name: Test NET6
       run: ./build.sh -target Test
 
+    - name: Linux unit test report
+      uses: dorny/test-reporter@v1
+      if: success() || failure()    # run this step even if previous step failed
+      with:
+        name: Linux unit test results
+        path: ./TestResults/*.trx
+        reporter: dotnet-trx
+        fail-on-error: true
+
   build-release-windows:
     needs: test-linux
     runs-on: windows-latest
@@ -48,13 +61,27 @@ jobs:
       uses: actions/setup-dotnet@v2
       with:
         dotnet-version: '6.0.x'
+      
+    # Adjustment is done prior to Nuke build as OCTOVERSION information is included in the result package.
+    - name: Append OCTOVERSION_CurrentBranch with -nightly (for scheduled)
+      if: github.event_name == 'schedule'
+      run: echo "OCTOVERSION_CurrentBranch=${{ env.OCTOVERSION_CurrentBranch }}-nightly" >> $env:GITHUB_ENV
 
     - name: Nuke Build 🏗
       id: build
       run: ./build.ps1 --verbosity verbose
 
+    - name: Windows unit test report
+      uses: dorny/test-reporter@v1
+      if: success() || failure()    # run this step even if previous step failed
+      with:
+        name: Windows unit test results
+        path: ./TestResults/*.trx
+        reporter: dotnet-trx
+        fail-on-error: true
+
     - name: Tag release (when not pre-release) 🏷️
-      if: ${{ !contains( steps.build.outputs.octoversion_fullsemver, '-' ) }}
+      if: ${{ github.event_name != 'schedule' && !contains( steps.build.outputs.octoversion_fullsemver, '-' ) }}
       uses: actions/github-script@v3
       with:
         github-token: ${{ github.token }}
@@ -70,22 +97,33 @@ jobs:
       uses: OctopusDeploy/install-octopus-cli-action@v1
       with:
         version: latest
-      
+
+    - name: Set Octopus Related ENV
+      #Set Octopus Deploy Space Name
+      #Set Octopus Deploy Project Name
+      #Set Package Name  
+      #GITHUB_REPOSITORY returns owner/repo-name. This will strip owner and retain repo-name. (IE: OctopusDeploy/JavaPropertiesParser = JavaPropertiesParser)      
+      run: |
+        echo "OCTOPUSDEPLOY_Space=Core Platform" >> $env:GITHUB_ENV
+        $env:repo_name = $env:GITHUB_REPOSITORY.Substring($env:GITHUB_REPOSITORY.lastIndexOf('/')+1)        
+        echo "OCTOPUSDEPLOY_Project=$env:repo_name" >> $env:GITHUB_ENV
+        echo "OCTOPUSDEPLOY_Package=$env:repo_name" >> $env:GITHUB_ENV
+
     - name: Push to Octopus 🐙
       uses: OctopusDeploy/push-package-action@v1
       with:
         server: ${{ secrets.DEPLOY_URL }}
-        space: Core Platform
+        space: ${{ env.OCTOPUSDEPLOY_Space }}
         api_key: ${{ secrets.DEPLOY_API_KEY }}
         packages: |
-          ./artifacts/Octodiff.${{ steps.build.outputs.octoversion_fullsemver }}.nupkg          
+          ./artifacts/${{ env.OCTOPUSDEPLOY_Package }}.${{ steps.build.outputs.octoversion_fullsemver }}.nupkg          
 
     - name: Create Release in Octopus 🐙
       uses: OctopusDeploy/create-release-action@v1
       with:
         server: ${{ secrets.DEPLOY_URL }}
-        space: Core Platform
+        space: ${{ env.OCTOPUSDEPLOY_Space }}
         api_key: ${{ secrets.DEPLOY_API_KEY }}
-        project: "Octodiff"
+        project: ${{ env.OCTOPUSDEPLOY_Project }}
         packages: |
-          Octodiff:${{ steps.build.outputs.octoversion_fullsemver }}         
+          ${{ env.OCTOPUSDEPLOY_Package }}:${{ steps.build.outputs.octoversion_fullsemver }}         
