@@ -107,7 +107,7 @@ jobs:
         echo "OCTOPUSDEPLOY_Space=Core Platform" >> $env:GITHUB_ENV
         $env:repo_name = $env:GITHUB_REPOSITORY.Substring($env:GITHUB_REPOSITORY.lastIndexOf('/')+1)        
         echo "OCTOPUSDEPLOY_Project=$env:repo_name" >> $env:GITHUB_ENV
-        echo "OCTOPUSDEPLOY_Package=$env:repo_name" >> $env:GITHUB_ENV
+        echo "OCTOPUSDEPLOY_Package=Octopus.Octodiff" >> $env:GITHUB_ENV
 
     - name: Push to Octopus 🐙
       uses: OctopusDeploy/push-package-action@v1

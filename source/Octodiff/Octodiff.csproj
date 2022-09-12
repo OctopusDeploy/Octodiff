@@ -4,7 +4,7 @@
     <TargetFrameworks>netstandard2.0;net462</TargetFrameworks>
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <AssemblyName>Octodiff</AssemblyName>
-    <PackageId>Octodiff</PackageId>
+    <PackageId>Octopus.Octodiff</PackageId>
     <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
     <PackageProjectUrl>https://github.com/OctopusDeploy/Octodiff</PackageProjectUrl>
     <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
