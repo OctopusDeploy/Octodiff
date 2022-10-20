@@ -12,10 +12,11 @@ namespace Octodiff.Core
         private byte[] expectedHash;
         private IHashAlgorithm hashAlgorithm;
         private bool hasReadMetadata;
+        private const int DefaultBufferSize = 4 * 1024 * 1024;
 
         public BinaryDeltaReader(Stream stream, IProgressReporter progressReporter)
         {
-            this.reader = new BinaryReader(stream);
+            reader = new BinaryReader(stream);
             this.progressReporter = progressReporter ?? new NullProgressReporter();
         }
 
@@ -37,7 +38,7 @@ namespace Octodiff.Core
             }
         }
 
-        void EnsureMetadata()
+        private void EnsureMetadata()
         {
             if (hasReadMetadata)
                 return;
@@ -50,7 +51,8 @@ namespace Octodiff.Core
 
             var version = reader.ReadByte();
             if (version != BinaryFormat.Version)
-                throw new CorruptFileFormatException("The delta file uses a newer file format than this program can handle.");
+                throw new CorruptFileFormatException(
+                    "The delta file uses a newer file format than this program can handle.");
 
             var hashAlgorithmName = reader.ReadString();
             hashAlgorithm = SupportedAlgorithms.Hashing.Create(hashAlgorithmName);
@@ -65,19 +67,19 @@ namespace Octodiff.Core
         }
 
         public void Apply(
-            Action<byte[]> writeData, 
+            Action<byte[], int, int> writeData,
             Action<long, long> copy)
         {
-            var fileLength = reader.BaseStream.Length;
-
             EnsureMetadata();
+
+            var fileLength = reader.BaseStream.Length;
+            var buffer = new byte[DefaultBufferSize];
 
             while (reader.BaseStream.Position != fileLength)
             {
                 var b = reader.ReadByte();
 
                 progressReporter.ReportProgress("Applying delta", reader.BaseStream.Position, fileLength);
-                
                 if (b == BinaryFormat.CopyCommand)
                 {
                     var start = reader.ReadInt64();
@@ -90,9 +92,10 @@ namespace Octodiff.Core
                     long soFar = 0;
                     while (soFar < length)
                     {
-                        var bytes = reader.ReadBytes((int) Math.Min(length - soFar, 1024*1024*4));
-                        soFar += bytes.Length;
-                        writeData(bytes);
+                        var chunkLength = (int)Math.Min(length - soFar, DefaultBufferSize);
+                        var numberOfBytesRead = reader.Read(buffer, 0, chunkLength);
+                        soFar += numberOfBytesRead;
+                        writeData(buffer, 0, numberOfBytesRead);
                     }
                 }
             }
