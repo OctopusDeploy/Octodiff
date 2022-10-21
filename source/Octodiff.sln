@@ -8,6 +8,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Octodiff.Tests", "Octodiff.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "_build", "..\build\_build.csproj", "{D7FD8AAD-2386-4BC8-BDBB-B2CFA63DBE57}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Octodiff.Benchmarks", "Octodiff.Benchmarks\Octodiff.Benchmarks.csproj", "{72DD74E4-7B7C-43DF-BF85-92FC8F64682B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -24,6 +26,10 @@ Global
 		{B7E95BD1-676E-4AC7-9089-3270392776BA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B7E95BD1-676E-4AC7-9089-3270392776BA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B7E95BD1-676E-4AC7-9089-3270392776BA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{72DD74E4-7B7C-43DF-BF85-92FC8F64682B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{72DD74E4-7B7C-43DF-BF85-92FC8F64682B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{72DD74E4-7B7C-43DF-BF85-92FC8F64682B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{72DD74E4-7B7C-43DF-BF85-92FC8F64682B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
