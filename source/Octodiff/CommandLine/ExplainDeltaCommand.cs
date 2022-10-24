@@ -42,16 +42,16 @@ namespace Octodiff.CommandLine
             {
                 var reader = new BinaryDeltaReader(deltaStream, new NullProgressReporter());
 
-                reader.Apply(data =>
+                reader.Apply((data, offset, count) =>
                 {
-                    if (data.Length > 20)
+                    if (count > 20)
                     {
-                        Console.WriteLine("Data: ({0} bytes): {1}...", data.Length,
-                            BitConverter.ToString(data.Take(20).ToArray()));
+                        Console.WriteLine("Data: ({0} bytes): {1}...", count,
+                            BitConverter.ToString(data.Skip(offset).Take(20).ToArray()));
                     }
                     else
                     {
-                        Console.WriteLine("Data: ({0} bytes): {1}", data.Length, BitConverter.ToString(data.ToArray()));                        
+                        Console.WriteLine("Data: ({0} bytes): {1}", count, BitConverter.ToString(data.Skip(offset).Take(count).ToArray()));                        
                     }
                 }, 
                 (start, offset) => Console.WriteLine("Copy: {0:X} to {1:X}", start, offset));

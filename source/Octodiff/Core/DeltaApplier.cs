@@ -1,12 +1,13 @@
 using System;
 using System.Collections;
 using System.IO;
-using Octodiff.Diagnostics;
 
 namespace Octodiff.Core
 {
     public class DeltaApplier
     {
+        private const int BufferLength = 4 * 1024 * 1024;
+
         public DeltaApplier()
         {
             SkipHashCheck = false;
@@ -16,34 +17,36 @@ namespace Octodiff.Core
 
         public void Apply(Stream basisFileStream, IDeltaReader delta, Stream outputStream)
         {
-            delta.Apply(
-                writeData: (data) => outputStream.Write(data, 0, data.Length),
-                copy: (startPosition, length) =>
-                {
-                    basisFileStream.Seek(startPosition, SeekOrigin.Begin);
+            var buffer = new byte[BufferLength];
 
-                    var buffer = new byte[4*1024*1024];
+            delta.Apply(
+                writeData: outputStream.Write,
+                copy: (offset, count) =>
+                {
+                    basisFileStream.Seek(offset, SeekOrigin.Begin);
+
                     int read;
                     long soFar = 0;
-                    while ((read = basisFileStream.Read(buffer, 0, (int)Math.Min(length - soFar, buffer.Length))) > 0)
+                    while ((read = basisFileStream.Read(buffer, 0, (int)Math.Min(count - soFar, BufferLength))) > 0)
                     {
                         soFar += read;
                         outputStream.Write(buffer, 0, read);
                     }
                 });
 
-            if (!SkipHashCheck)
-            {
-                outputStream.Seek(0, SeekOrigin.Begin);
+            if (SkipHashCheck)
+                return;
 
-                var sourceFileHash = delta.ExpectedHash;
-                var algorithm = delta.HashAlgorithm;
+            outputStream.Seek(0, SeekOrigin.Begin);
 
-                var actualHash = algorithm.ComputeHash(outputStream);
+            var sourceFileHash = delta.ExpectedHash;
+            var algorithm = delta.HashAlgorithm;
 
-                if (!StructuralComparisons.StructuralEqualityComparer.Equals(sourceFileHash, actualHash))
-                    throw new UsageException("Verification of the patched file failed. The SHA1 hash of the patch result file, and the file that was used as input for the delta, do not match. This can happen if the basis file changed since the signatures were calculated.");
-            }
+            var actualHash = algorithm.ComputeHash(outputStream);
+
+            if (!StructuralComparisons.StructuralEqualityComparer.Equals(sourceFileHash, actualHash))
+                throw new UsageException(
+                    "Verification of the patched file failed. The SHA1 hash of the patch result file, and the file that was used as input for the delta, do not match. This can happen if the basis file changed since the signatures were calculated.");
         }
     }
 }
