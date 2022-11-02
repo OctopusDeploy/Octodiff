@@ -37,6 +37,12 @@ jobs:
       with:
         dotnet-version: '6.0.x'
 
+    - name: Get OS Version
+      run: cat /etc/os-release
+
+    - name: Get OpenSSL Version installed
+      run: apt list openssl -a
+
     - name: Test NET6
       run: ./build.sh -target Test
 
