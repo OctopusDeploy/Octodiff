@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 
 namespace Octodiff.Tests.Util
 {
@@ -11,8 +12,18 @@ namespace Octodiff.Tests.Util
                 "MIICBDCCAaugAwIBAgIUGNg/B3GL5BId8KGNdhD6+NejvsQwCgYIKoZIzj0EAwIwWDELMAkGA1UEBhMCQVUxEzARBgNVBAgMClNvbWUtU3RhdGUxFzAVBgNVBAoMDk9jdG9wdXMgRGVwbG95MQwwCgYDVQQLDANSJkQxDTALBgNVBAMMBFRFU1QwHhcNMjMwMzIwMDk0ODQyWhcNMjQwMzE5MDk0ODQyWjBYMQswCQYDVQQGEwJBVTETMBEGA1UECAwKU29tZS1TdGF0ZTEXMBUGA1UECgwOT2N0b3B1cyBEZXBsb3kxDDAKBgNVBAsMA1ImRDENMAsGA1UEAwwEVEVTVDBZMBMGByqGSM49AgEGCCqGSM49AwEHA0IABFBLdySNg+Lj4gm7sil6Dk0k/0Xnnv+I3RZeZBmumFEtq9IhnaRuk9f/mNWhy4AxSlfzfQkx7PfzvUvOISz9LLqjUzBRMB0GA1UdDgQWBBS63SeKMeASd2r7/aTq2P3OkE8O/DAfBgNVHSMEGDAWgBS63SeKMeASd2r7/aTq2P3OkE8O/DAPBgNVHRMBAf8EBTADAQH/MAoGCCqGSM49BAMCA0cAMEQCIFmc75IBFbZKfQvH3lWoS7p/Be54uekDr3y1K0pdzI6iAiAGV1RF2rnCEyWkjeO9fOUaNGEgFadGSHh8en4DJkU3cA==");
 
         // courtesy https://stackoverflow.com/a/9995303/234
-        public static byte[] ToByteArray(this string hex)
+        public static byte[] HexStringToByteArray(this string hex)
         {
+            int GetHexVal(int val)
+            {
+                //For uppercase A-F letters:
+                //return val - (val < 58 ? 48 : 55);
+                //For lowercase a-f letters:
+                //return val - (val < 58 ? 48 : 87);
+                //Or the two combined, but a bit slower:
+                return val - (val < 58 ? 48 : (val < 97 ? 55 : 87));
+            }
+            
             if (hex.Length % 2 == 1)
                 throw new Exception("The binary key cannot have an odd number of digits");
 
@@ -26,15 +37,14 @@ namespace Octodiff.Tests.Util
             return arr;
         }
 
-        static int GetHexVal(char hex)
+        public static string ToHexString(this byte[] byteArray)
         {
-            int val = hex;
-            //For uppercase A-F letters:
-            //return val - (val < 58 ? 48 : 55);
-            //For lowercase a-f letters:
-            //return val - (val < 58 ? 48 : 87);
-            //Or the two combined, but a bit slower:
-            return val - (val < 58 ? 48 : (val < 97 ? 55 : 87));
+            var hex = new StringBuilder(byteArray.Length * 2);
+            foreach (var b in byteArray)
+                hex.AppendFormat("{0:x2}", b);
+            return hex.ToString();
         }
+
+        
     }
 }

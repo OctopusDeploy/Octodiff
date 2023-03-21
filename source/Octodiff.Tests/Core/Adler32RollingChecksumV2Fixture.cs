@@ -2,7 +2,7 @@
 using Octodiff.Core;
 using Octodiff.Tests.Util;
 
-namespace Octodiff.Tests.Impl
+namespace Octodiff.Tests.Core
 {
     [TestFixture]
     public class Adler32RollingChecksumV2Fixture
