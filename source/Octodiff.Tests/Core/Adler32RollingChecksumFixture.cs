@@ -25,6 +25,9 @@ namespace Octodiff.Tests.Core
             Assert.AreEqual(2476743237, c.Calculate(block, 2, 100));
             Assert.AreEqual(591925890, c.Calculate(block, 93, 100));
             Assert.AreEqual(4037189623, c.Calculate(block, 0, block.Length));
+
+            var largeBlock = Helpers.GenerateTestData(100 * 1024);
+            Assert.AreEqual(2928347280, c.Calculate(largeBlock, 0, largeBlock.Length));
         }
         
         [Test]
