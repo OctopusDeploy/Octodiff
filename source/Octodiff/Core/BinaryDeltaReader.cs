@@ -17,7 +17,7 @@ namespace Octodiff.Core
         public BinaryDeltaReader(Stream stream, IProgressReporter progressReporter)
         {
             reader = new BinaryReader(stream);
-            this.progressReporter = progressReporter ?? new NullProgressReporter();
+            this.progressReporter = progressReporter ?? NullProgressReporter.Instance;
         }
 
         public byte[] ExpectedHash

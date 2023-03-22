@@ -13,7 +13,7 @@ namespace Octodiff.Core
 
         public DeltaBuilder()
         {
-            ProgressReporter = new NullProgressReporter();
+            ProgressReporter = NullProgressReporter.Instance;
         }
 
         public IProgressReporter ProgressReporter { get; set; }

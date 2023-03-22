@@ -16,7 +16,7 @@ namespace Octodiff.Core
             ChunkSize = DefaultChunkSize;
             HashAlgorithm = SupportedAlgorithms.Hashing.Default();
             RollingChecksumAlgorithm = SupportedAlgorithms.Checksum.Default();
-            ProgressReporter = new NullProgressReporter();
+            ProgressReporter = NullProgressReporter.Instance;
         }
 
         public IProgressReporter ProgressReporter { get; set; }
