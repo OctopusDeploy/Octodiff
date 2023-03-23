@@ -18,8 +18,9 @@ namespace Octodiff.Tests.Core
             }
         }
 
-        static void AssertChunk(ChunkSignature chunk, UInt32 checksum, short length, string hashAsHexString)
+        static void AssertChunk(ChunkSignature chunk, long startOffset, UInt32 checksum, short length, string hashAsHexString)
         {
+            Assert.AreEqual(startOffset, chunk.StartOffset);
             Assert.AreEqual(checksum, chunk.RollingChecksum);
             Assert.AreEqual(length, chunk.Length);
             Assert.AreEqual(hashAsHexString, chunk.Hash.ToHexString());
@@ -37,7 +38,7 @@ namespace Octodiff.Tests.Core
             Assert.AreEqual("Adler32", s.RollingChecksumAlgorithm.Name);
             
             Assert.AreEqual(1, s.Chunks.Count);
-            AssertChunk(s.Chunks[0], 4037189623, 520, "330bd06982d3b5dbda6c1a6ad16687a0cdb03c0d");
+            AssertChunk(s.Chunks[0], 0, 4037189623, 520, "330bd06982d3b5dbda6c1a6ad16687a0cdb03c0d");
         }
         
         [Test]
@@ -52,7 +53,7 @@ namespace Octodiff.Tests.Core
             Assert.AreEqual("Adler32V2", s.RollingChecksumAlgorithm.Name);
             
             Assert.AreEqual(1, s.Chunks.Count);
-            AssertChunk(s.Chunks[0], 4175798263, 520, "330bd06982d3b5dbda6c1a6ad16687a0cdb03c0d");
+            AssertChunk(s.Chunks[0], 0, 4175798263, 520, "330bd06982d3b5dbda6c1a6ad16687a0cdb03c0d");
         }
         
         [Test]
@@ -67,11 +68,11 @@ namespace Octodiff.Tests.Core
             Assert.AreEqual("Adler32", s.RollingChecksumAlgorithm.Name);
             
             Assert.AreEqual(5, s.Chunks.Count);
-            AssertChunk(s.Chunks[0], 3878035349, 128, "19f3978cb607e80a9aab3abbcac8bb1ecbcecf3e");
-            AssertChunk(s.Chunks[1], 254154783, 128, "0f73196c2aa57877ee5e31291a59b5afca449365");
-            AssertChunk(s.Chunks[2], 720647648, 128, "42c4a73471dea3b9746e22dd93893fd8549f11bd");
-            AssertChunk(s.Chunks[3], 1811165149, 128, "72e00e30ecae4c70ee07721d221a3b8a6d1847fa");
-            AssertChunk(s.Chunks[4], 210109066, 8, "21d4023a8ba580ecdba742e7400aa40b6e449bb3");
+            AssertChunk(s.Chunks[0], 0, 3878035349, 128, "19f3978cb607e80a9aab3abbcac8bb1ecbcecf3e");
+            AssertChunk(s.Chunks[1], 128, 254154783, 128, "0f73196c2aa57877ee5e31291a59b5afca449365");
+            AssertChunk(s.Chunks[2], 256, 720647648, 128, "42c4a73471dea3b9746e22dd93893fd8549f11bd");
+            AssertChunk(s.Chunks[3], 384, 1811165149, 128, "72e00e30ecae4c70ee07721d221a3b8a6d1847fa");
+            AssertChunk(s.Chunks[4], 512, 210109066, 8, "21d4023a8ba580ecdba742e7400aa40b6e449bb3");
         }
         
         [Test]
@@ -86,10 +87,10 @@ namespace Octodiff.Tests.Core
             Assert.AreEqual("Adler32", s.RollingChecksumAlgorithm.Name);
             
             Assert.AreEqual(4, s.Chunks.Count);
-            AssertChunk(s.Chunks[0], 792208312, 31744, "5470f51bab46eeb3913379e7b70a0d7329a9afce");
-            AssertChunk(s.Chunks[1], 3330942901, 31744, "9c31becd9bcd36f9afbd350ec15f4c437fd0cb67");
-            AssertChunk(s.Chunks[2], 1591746682, 31744, "c605af9c2fd5a61b60f65600f5849f6ce1c53cf1");
-            AssertChunk(s.Chunks[3], 4058619052, 7168, "94d25de18f219fa7832df14593cade50d8b0d2a2");
+            AssertChunk(s.Chunks[0], 0, 792208312, 31744, "5470f51bab46eeb3913379e7b70a0d7329a9afce");
+            AssertChunk(s.Chunks[1], 31744, 3330942901, 31744, "9c31becd9bcd36f9afbd350ec15f4c437fd0cb67");
+            AssertChunk(s.Chunks[2], 63488, 1591746682, 31744, "c605af9c2fd5a61b60f65600f5849f6ce1c53cf1");
+            AssertChunk(s.Chunks[3], 95232, 4058619052, 7168, "94d25de18f219fa7832df14593cade50d8b0d2a2");
         }
     }
 }
