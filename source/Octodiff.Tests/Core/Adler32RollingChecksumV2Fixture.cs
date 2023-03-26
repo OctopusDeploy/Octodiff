@@ -7,7 +7,7 @@ namespace Octodiff.Tests.Core
     [TestFixture]
     public class Adler32RollingChecksumV2Fixture
     {
-        Adler32RollingChecksumV2 c = new Adler32RollingChecksumV2();
+        readonly Adler32RollingChecksumV2 c = new Adler32RollingChecksumV2();
         
         [Test]
         public void Name()
@@ -18,7 +18,7 @@ namespace Octodiff.Tests.Core
         [Test]
         public void Calculate()
         {
-            var block = Helpers.TestData;
+            var block = Helpers.TestData();
             
             Assert.AreEqual(2760448612, c.Calculate(block, 0, 100));
             Assert.AreEqual(2892962471, c.Calculate(block, 1, 100));

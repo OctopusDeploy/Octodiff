@@ -5,9 +5,9 @@ namespace Octodiff.Core
 {
     public class SignatureBuilder
     {
-        public static readonly short MinimumChunkSize = 128;
-        public static readonly short DefaultChunkSize = 2048;
-        public static readonly short MaximumChunkSize = 31 * 1024;
+        public const short MinimumChunkSize = 128;
+        public const short DefaultChunkSize = 2048;
+        public const short MaximumChunkSize = 31 * 1024;
 
         private short chunkSize;
 
