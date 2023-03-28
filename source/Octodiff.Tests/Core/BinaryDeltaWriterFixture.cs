@@ -8,12 +8,13 @@ namespace Octodiff.Tests.Core
 {
     public class BinaryDeltaWriterFixture
     {
-        static byte[] WithDeltaWriter(Action<BinaryDeltaWriter> action)
+        static byte[] WithDeltaWriter(Action<IDeltaWriter> action)
         {
             using (var ms = new MemoryStream())
             {
-                var b = new BinaryDeltaWriter(ms);
+                var b = new AggregateCopyOperationsDecorator(new BinaryDeltaWriter(ms));
                 action(b);
+                b.Finish();
                 return ms.ToArray();
             }
         }
@@ -39,6 +40,24 @@ namespace Octodiff.Tests.Core
             });
 
             Assert.AreEqual("6014d004000000000083ac960000000000", output.ToHexString());
+        }
+        
+        [Test]
+        public void MergesSequentialCopyCommands()
+        {
+            var output = WithDeltaWriter(b =>
+            {
+                // these 3 get merged
+                b.WriteCopyCommand(new DataRange(startOffset: 0, length: 128));
+                b.WriteCopyCommand(new DataRange(startOffset: 128, length: 128));
+                b.WriteCopyCommand(new DataRange(startOffset: 256, length: 128));
+                
+                // this one doesn't because there's a 1-byte gap
+                b.WriteCopyCommand(new DataRange(startOffset: 385, length: 128));
+            });
+
+            // 0x60 signifies a copy command, we can see there's only two here
+            Assert.AreEqual("60000000000000000080010000000000006081010000000000008000000000000000", output.ToHexString());
         }
         
         [Test]
