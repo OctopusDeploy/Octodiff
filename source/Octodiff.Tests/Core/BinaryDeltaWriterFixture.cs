@@ -61,6 +61,22 @@ namespace Octodiff.Tests.Core
         }
         
         [Test]
+        public void DataCommandFlushesCopyCommand()
+        {
+            var output = WithDeltaWriter(b =>
+            {
+                var sourceFile = new MemoryStream(Helpers.GenerateTestData(1024));
+                
+                // these would get merged but they won't because there's a Data command in the middle
+                b.WriteCopyCommand(new DataRange(startOffset: 0, length: 128));
+                b.WriteDataCommand(sourceFile, 500, 128);
+                b.WriteCopyCommand(new DataRange(startOffset: 128, length: 128));
+            });
+
+            Assert.AreEqual("6000000000000000008000000000000000808000000000000000bd7ce51a34612015a74648787c7a7e032645377030820204308201aba003020102021418d83f07718be4121df0a18d7610faf8d7a3bec4300a06082a8648ce3d0403023058310b30090603550406130241553113301106035504080c0a536f6d652d537461746531173015060355040a0c0e4f63746f707573204465706c6f796080000000000000008000000000000000", output.ToHexString());
+        }
+
+        [Test]
         public void WritesDataCommand()
         {
             var output = WithDeltaWriter(b =>
