@@ -23,13 +23,13 @@ public class DeltaApplierBenchmarks
         signatureStream.Seek(0, SeekOrigin.Begin);
         var deltaBuilder = new DeltaBuilder();
         deltaStream = new MemoryStream();
-        deltaBuilder.BuildDelta(newStream, new SignatureReader(signatureStream, new NullProgressReporter()), new BinaryDeltaWriter(deltaStream));
+        deltaBuilder.BuildDelta(newStream, new SignatureReader(signatureStream, NullProgressReporter.Instance), new BinaryDeltaWriter(deltaStream));
         deltaStream.Seek(0, SeekOrigin.Begin);
 
         originalStream.Seek(0, SeekOrigin.Begin);
         signatureStream.Seek(0, SeekOrigin.Begin);
         otherDeltaStream = new MemoryStream();
-        deltaBuilder.BuildDelta(originalStream, new SignatureReader(signatureStream, new NullProgressReporter()), new BinaryDeltaWriter(otherDeltaStream));
+        deltaBuilder.BuildDelta(originalStream, new SignatureReader(signatureStream, NullProgressReporter.Instance), new BinaryDeltaWriter(otherDeltaStream));
         otherDeltaStream.Seek(0, SeekOrigin.Begin);
     }
 
@@ -38,7 +38,7 @@ public class DeltaApplierBenchmarks
     {
         var originalStream = new RandomDataGeneratorStream(_500MB, 100);
         var deltaApplier = new DeltaApplier { SkipHashCheck = true };
-        deltaApplier.Apply(originalStream, new BinaryDeltaReader(deltaStream, new NullProgressReporter()), Stream.Null);
+        deltaApplier.Apply(originalStream, new BinaryDeltaReader(deltaStream, NullProgressReporter.Instance), Stream.Null);
     }
 
     [Benchmark]
@@ -46,6 +46,6 @@ public class DeltaApplierBenchmarks
     {
         var originalStream = new RandomDataGeneratorStream(_500MB, 100);
         var deltaApplier = new DeltaApplier { SkipHashCheck = true };
-        deltaApplier.Apply(originalStream, new BinaryDeltaReader(otherDeltaStream, new NullProgressReporter()), Stream.Null);
+        deltaApplier.Apply(originalStream, new BinaryDeltaReader(otherDeltaStream, NullProgressReporter.Instance), Stream.Null);
     }
 }
