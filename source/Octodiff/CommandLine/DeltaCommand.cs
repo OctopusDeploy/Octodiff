@@ -35,7 +35,7 @@ namespace Octodiff.CommandLine
             options.Parse(commandLineArguments);
 
             if (string.IsNullOrWhiteSpace(signatureFilePath))
-                throw new OptionException("No signature file was specified", "new-file");
+                throw new OptionException("No signature file was specified", "signature-file");
             if (string.IsNullOrWhiteSpace(newFilePath))
                 throw new OptionException("No new file was specified", "new-file");
 
