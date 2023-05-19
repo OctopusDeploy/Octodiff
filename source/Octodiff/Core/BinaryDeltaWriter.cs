@@ -31,6 +31,8 @@ namespace Octodiff.Core
 
         public void WriteDataCommand(Stream source, long offset, long length)
         {
+            const long maxBufferSize = 1024 * 1024;
+            
             writer.Write(BinaryFormat.DataCommand);
             writer.Write(length);
 
@@ -39,7 +41,9 @@ namespace Octodiff.Core
             {
                 source.Seek(offset, SeekOrigin.Begin);
 
-                var buffer = new byte[Math.Min((int)length, 1024 * 1024)];
+                // ensure we clamp to maxBufferSize before int32 conversion to avoid overflow
+                var bufferSize = length > maxBufferSize ? maxBufferSize : length;
+                var buffer = new byte[(int)bufferSize];
 
                 int read;
                 long soFar = 0;
