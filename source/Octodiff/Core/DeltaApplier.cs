@@ -65,16 +65,16 @@ namespace Octodiff.Core
 
         public static void Apply(this IDeltaReader delta, Stream basisFileStream, Stream outputStream, bool SkipHashCheck = false)
         {
-
             delta.Apply(
                 writeData: outputStream.Write,
                 copy: (offset, count) =>
                 {
                     basisFileStream.Seek(offset, SeekOrigin.Begin);
 
+                    var buffer = new byte[4 * 1024 * 1024];
                     int read;
                     long soFar = 0;
-                    while ((read = basisFileStream.Read(buffer, 0, (int)Math.Min(count - soFar, BufferLength))) > 0)
+                    while ((read = basisFileStream.Read(buffer, 0, (int)Math.Min(count - soFar, buffer.Length))) > 0)
                     {
                         soFar += read;
                         outputStream.Write(buffer, 0, read);

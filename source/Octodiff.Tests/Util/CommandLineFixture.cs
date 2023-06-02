@@ -52,7 +52,7 @@ namespace Octodiff.Tests.Util
 #if NET462
             return new Uri(typeof(DeltaBuilder).Assembly.CodeBase).LocalPath;   
 #else
-            return Path.Combine(Path.GetDirectoryName(new Uri(typeof(CommandLineFixture).GetTypeInfo().Assembly.CodeBase).LocalPath), "Octodiff.Tests.dll");
+            return Path.Combine(Path.GetDirectoryName(typeof(CommandLineFixture).GetTypeInfo().Assembly.Location)!, "Octodiff.Tests.dll");
 #endif
         }
 
