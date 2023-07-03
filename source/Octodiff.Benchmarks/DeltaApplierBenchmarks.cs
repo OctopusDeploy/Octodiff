@@ -1,4 +1,5 @@
-﻿using BenchmarkDotNet.Attributes;
+﻿using System.Security.Cryptography;
+using BenchmarkDotNet.Attributes;
 using Octodiff.Core;
 using Octodiff.Diagnostics;
 
@@ -38,7 +39,11 @@ public class DeltaApplierBenchmarks
     {
         var originalStream = new RandomDataGeneratorStream(_500MB, 100);
         var deltaApplier = new DeltaApplier { SkipHashCheck = true };
-        deltaApplier.Apply(originalStream, new BinaryDeltaReader(deltaStream, NullProgressReporter.Instance), Stream.Null);
+        var outputStream = new MemoryStream();
+        deltaApplier.Apply(originalStream, new BinaryDeltaReader(deltaStream, NullProgressReporter.Instance), outputStream);
+
+        var result = Convert.ToBase64String(SHA256.HashData(outputStream.ToArray()));
+        if (result != "PmLv2EYxN+UFfEfq7W8m7hsfE6dTbiVyrIS8hTUirDI=") throw new Exception($"Got unexpected {result}");
     }
 
     [Benchmark]
@@ -46,6 +51,24 @@ public class DeltaApplierBenchmarks
     {
         var originalStream = new RandomDataGeneratorStream(_500MB, 100);
         var deltaApplier = new DeltaApplier { SkipHashCheck = true };
-        deltaApplier.Apply(originalStream, new BinaryDeltaReader(otherDeltaStream, NullProgressReporter.Instance), Stream.Null);
+        var outputStream = new MemoryStream();
+        deltaApplier.Apply(originalStream, new BinaryDeltaReader(otherDeltaStream, NullProgressReporter.Instance), outputStream);
+        
+        var result = Convert.ToBase64String(SHA256.HashData(outputStream.ToArray()));
+        if (result != "VAmzyjGmPrYObN5AFjF+R5NvwA6ZKxDOpLb572bMdJ4=") throw new Exception($"Got unexpected {result}");
+    }
+    
+    [Benchmark]
+    public void ApplyBigDelta_Identical_BinaryDeltaStream()
+    {
+        var originalStream = new RandomDataGeneratorStream(_500MB, 100);
+
+        var outputStream = new MemoryStream();
+        var binaryDeltaStream = new BinaryDeltaStream(originalStream, otherDeltaStream);
+        
+        binaryDeltaStream.Apply(outputStream, SkipHashCheck: true);
+        
+        var result = Convert.ToBase64String(SHA256.HashData(outputStream.ToArray()));
+        if (result != "VAmzyjGmPrYObN5AFjF+R5NvwA6ZKxDOpLb572bMdJ4=") throw new Exception($"Got unexpected {result}");
     }
 }

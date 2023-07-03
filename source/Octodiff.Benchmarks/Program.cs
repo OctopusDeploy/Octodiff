@@ -1,4 +1,8 @@
 ﻿using BenchmarkDotNet.Running;
-using Octodiff.Benchmarks;
 
-BenchmarkRunner.Run<DeltaApplierBenchmarks>();
+namespace Octodiff.Benchmarks;
+
+static class Program
+{
+    public static void Main(string[] args) => BenchmarkRunner.Run<DeltaApplierBenchmarks>(null, args);        
+}
