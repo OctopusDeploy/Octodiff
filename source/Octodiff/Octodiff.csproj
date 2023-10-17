@@ -7,7 +7,7 @@
     <PackageId>Octopus.Octodiff</PackageId>
     <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
     <PackageProjectUrl>https://github.com/OctopusDeploy/Octodiff</PackageProjectUrl>
-    <PackageLicenseFile>LICENSE.txt</PackageLicenseFile>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <Authors>Octopus Deploy</Authors>
     <Copyright>Octopus Deploy Pty Ltd</Copyright>
     <PackageTags>tool</PackageTags>
