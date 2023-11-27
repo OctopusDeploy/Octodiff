@@ -54,7 +54,7 @@ jobs:
     runs-on: windows-latest
     env:
       OCTOPUS_API_KEY: ${{ secrets.DEPLOY_API_KEY }}
-      OCTOPUS_HOST: ${{ secrets.DEPLOY_URL }}
+      OCTOPUS_URL: ${{ secrets.DEPLOY_URL }}
       OCTOPUS_SPACE: "Core Platform"
 
     steps:
