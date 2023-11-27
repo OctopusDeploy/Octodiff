@@ -28,12 +28,12 @@ jobs:
   test-linux:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
       with:
         fetch-depth: 0 # all
 
     - name: Setup NET6.0
-      uses: actions/setup-dotnet@v2
+      uses: actions/setup-dotnet@v3
       with:
         dotnet-version: '6.0.x'
 
@@ -52,13 +52,18 @@ jobs:
   build-release-windows:
     needs: test-linux
     runs-on: windows-latest
+    env:
+      OCTOPUS_API_KEY: ${{ secrets.DEPLOY_API_KEY }}
+      OCTOPUS_URL: ${{ secrets.DEPLOY_URL }}
+      OCTOPUS_SPACE: "Core Platform"
+
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
       with:
         fetch-depth: 0 # all
 
     - name: Setup NET6.0
-      uses: actions/setup-dotnet@v2
+      uses: actions/setup-dotnet@v3
       with:
         dotnet-version: '6.0.x'
       
@@ -82,7 +87,7 @@ jobs:
 
     - name: Tag release (when not pre-release) 🏷️
       if: ${{ github.event_name != 'schedule' && !contains( steps.build.outputs.octoversion_fullsemver, '-' ) }}
-      uses: actions/github-script@v3
+      uses: actions/github-script@v7
       with:
         github-token: ${{ github.token }}
         script: |
@@ -93,37 +98,15 @@ jobs:
             sha: context.sha
           })
 
-    - name: Install Octopus CLI 🐙
-      uses: OctopusDeploy/install-octopus-cli-action@v1
-      with:
-        version: latest
-
-    - name: Set Octopus Related ENV
-      #Set Octopus Deploy Space Name
-      #Set Octopus Deploy Project Name
-      #Set Package Name  
-      #GITHUB_REPOSITORY returns owner/repo-name. This will strip owner and retain repo-name. (IE: OctopusDeploy/JavaPropertiesParser = JavaPropertiesParser)      
-      run: |
-        echo "OCTOPUSDEPLOY_Space=Core Platform" >> $env:GITHUB_ENV
-        $env:repo_name = $env:GITHUB_REPOSITORY.Substring($env:GITHUB_REPOSITORY.lastIndexOf('/')+1)        
-        echo "OCTOPUSDEPLOY_Project=$env:repo_name" >> $env:GITHUB_ENV
-        echo "OCTOPUSDEPLOY_Package=Octopus.Octodiff" >> $env:GITHUB_ENV
-
     - name: Push to Octopus 🐙
-      uses: OctopusDeploy/push-package-action@v1
+      uses: OctopusDeploy/push-package-action@v3
       with:
-        server: ${{ secrets.DEPLOY_URL }}
-        space: ${{ env.OCTOPUSDEPLOY_Space }}
-        api_key: ${{ secrets.DEPLOY_API_KEY }}
         packages: |
-          ./artifacts/${{ env.OCTOPUSDEPLOY_Package }}.${{ steps.build.outputs.octoversion_fullsemver }}.nupkg          
+          ./artifacts/Octopus.Octodiff.${{ steps.build.outputs.octoversion_fullsemver }}.nupkg          
 
     - name: Create Release in Octopus 🐙
-      uses: OctopusDeploy/create-release-action@v1
+      uses: OctopusDeploy/create-release-action@v3
       with:
-        server: ${{ secrets.DEPLOY_URL }}
-        space: ${{ env.OCTOPUSDEPLOY_Space }}
-        api_key: ${{ secrets.DEPLOY_API_KEY }}
-        project: ${{ env.OCTOPUSDEPLOY_Project }}
+        project: Octodiff
         packages: |
-          ${{ env.OCTOPUSDEPLOY_Package }}:${{ steps.build.outputs.octoversion_fullsemver }}         
+          Octopus.Octodiff:${{ steps.build.outputs.octoversion_fullsemver }}         
