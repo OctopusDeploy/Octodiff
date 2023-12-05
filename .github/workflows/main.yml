@@ -32,12 +32,12 @@ jobs:
       with:
         fetch-depth: 0 # all
 
-    - name: Setup NET6.0
+    - name: Setup NET 8.0
       uses: actions/setup-dotnet@v3
       with:
-        dotnet-version: '6.0.x'
+        dotnet-version: '8.0.x'
 
-    - name: Test NET6
+    - name: Test NET 6
       run: ./build.sh -target Test
 
     - name: Linux unit test report
@@ -62,10 +62,10 @@ jobs:
       with:
         fetch-depth: 0 # all
 
-    - name: Setup NET6.0
+    - name: Setup NET 6.0
       uses: actions/setup-dotnet@v3
       with:
-        dotnet-version: '6.0.x'
+        dotnet-version: '8.0.x'
       
     # Adjustment is done prior to Nuke build as OCTOVERSION information is included in the result package.
     - name: Append OCTOVERSION_CurrentBranch with -nightly (for scheduled)
