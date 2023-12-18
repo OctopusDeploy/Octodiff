@@ -9,7 +9,7 @@ on:
       - release/*
     tags-ignore:
       - '**'
-    
+
   pull_request:
     types: [opened, synchronize, reopened]
 
@@ -66,11 +66,11 @@ jobs:
       uses: actions/setup-dotnet@v3
       with:
         dotnet-version: '8.0.x'
-      
+
     # Adjustment is done prior to Nuke build as OCTOVERSION information is included in the result package.
     - name: Append OCTOVERSION_CurrentBranch with -nightly (for scheduled)
       if: github.event_name == 'schedule'
-      run: echo "OCTOVERSION_CurrentBranch=${{ env.OCTOVERSION_CurrentBranch }}-nightly" >> $GITHUB_ENV
+      run: echo "OCTOVERSION_CurrentBranch=${{ env.OCTOVERSION_CurrentBranch }}-nightly" >> $env:GITHUB_ENV
 
     - name: Nuke Build 🏗
       id: build
@@ -102,11 +102,11 @@ jobs:
       uses: OctopusDeploy/push-package-action@v3
       with:
         packages: |
-          ./artifacts/Octopus.Octodiff.${{ steps.build.outputs.octoversion_fullsemver }}.nupkg          
+          ./artifacts/Octopus.Octodiff.${{ steps.build.outputs.octoversion_fullsemver }}.nupkg
 
     - name: Create Release in Octopus 🐙
       uses: OctopusDeploy/create-release-action@v3
       with:
         project: Octodiff
         packages: |
-          Octopus.Octodiff:${{ steps.build.outputs.octoversion_fullsemver }}         
+          Octopus.Octodiff:${{ steps.build.outputs.octoversion_fullsemver }}
