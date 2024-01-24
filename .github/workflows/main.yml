@@ -52,9 +52,11 @@ jobs:
   build-release-windows:
     needs: test-linux
     runs-on: windows-latest
+    permissions:
+      id-token: write # Required to obtain the ID token from GitHub Actions
+      contents: read # Required to check out code
+      checks: write # Required for test-reporter
     env:
-      OCTOPUS_API_KEY: ${{ secrets.DEPLOY_API_KEY }}
-      OCTOPUS_URL: ${{ secrets.DEPLOY_URL }}
       OCTOPUS_SPACE: "Core Platform"
 
     steps:
@@ -70,7 +72,7 @@ jobs:
     # Adjustment is done prior to Nuke build as OCTOVERSION information is included in the result package.
     - name: Append OCTOVERSION_CurrentBranch with -nightly (for scheduled)
       if: github.event_name == 'schedule'
-      run: echo "OCTOVERSION_CurrentBranch=${{ env.OCTOVERSION_CurrentBranch }}-nightly" >> $env:GITHUB_ENV
+      run: echo "OCTOVERSION_CurrentBranch=${{ env.OCTOVERSION_CurrentBranch }}-nightly-$(date +'%Y%m%d%H%M%S')" >> $env:GITHUB_ENV
 
     - name: Nuke Build 🏗
       id: build
@@ -86,7 +88,7 @@ jobs:
         fail-on-error: true
 
     - name: Tag release (when not pre-release) 🏷️
-      if: ${{ github.event_name != 'schedule' && !contains( steps.build.outputs.octoversion_fullsemver, '-' ) }}
+      if: ${{ !contains( steps.build.outputs.octoversion_fullsemver, '-' ) }}
       uses: actions/github-script@v7
       with:
         github-token: ${{ github.token }}
@@ -98,14 +100,23 @@ jobs:
             sha: context.sha
           })
 
+    - name: Login to Octopus Deploy 🐙
+      if: (! contains(github.ref, '/merge')) && (! contains(github.ref, '/dependabot/')) && (! contains(github.ref, 'prettybot/'))
+      uses: OctopusDeploy/login@v1
+      with: 
+        server: https://deploy.octopus.app
+        service_account_id: 44daf805-da46-4efb-a403-a3b656dc31fc
+
     - name: Push to Octopus 🐙
       uses: OctopusDeploy/push-package-action@v3
+      if: (! contains(github.ref, '/merge')) && (! contains(github.ref, '/dependabot/')) && (! contains(github.ref, 'prettybot/'))
       with:
         packages: |
           ./artifacts/Octopus.Octodiff.${{ steps.build.outputs.octoversion_fullsemver }}.nupkg
 
     - name: Create Release in Octopus 🐙
       uses: OctopusDeploy/create-release-action@v3
+      if: (! contains(github.ref, '/merge')) && (! contains(github.ref, '/dependabot/')) && (! contains(github.ref, 'prettybot/'))
       with:
         project: Octodiff
         packages: |
