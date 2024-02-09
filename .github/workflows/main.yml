@@ -102,7 +102,7 @@ jobs:
         if: (! contains(github.ref, '/merge')) && (! contains(github.ref, '/dependabot/')) && (! contains(github.ref, 'prettybot/'))
         uses: OctopusDeploy/login@v1
         with: 
-          server: https://deploy.octopus.app
+          server: ${{ secrets.OCTOPUS_URL }}
           service_account_id: 44daf805-da46-4efb-a403-a3b656dc31fc
 
       - name: Push to Octopus 🐙
