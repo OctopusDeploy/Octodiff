@@ -22,102 +22,100 @@ on:
 
 env:
   OCTOVERSION_CurrentBranch: ${{ github.head_ref || github.ref }}
-  OCTOVERSION_Patch: ${{ github.run_number }}
+  OCTOPUS_SPACE: "Core Platform"
 
 jobs:
   test-linux:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
-      with:
-        fetch-depth: 0 # all
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # all
 
-    - name: Setup NET 8.0
-      uses: actions/setup-dotnet@v3
-      with:
-        dotnet-version: '8.0.x'
+      - name: Setup NET 8.0
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
 
-    - name: Test NET 8
-      run: ./build.sh -target Test
+      - name: Test NET 8
+        run: ./build.sh -target Test
 
-    - name: Linux unit test report
-      uses: dorny/test-reporter@v1
-      if: success() || failure()    # run this step even if previous step failed
-      with:
-        name: Linux unit test results
-        path: ./TestResults/*.trx
-        reporter: dotnet-trx
-        fail-on-error: true
+      - name: Linux unit test report
+        uses: dorny/test-reporter@v1
+        if: success() || failure()    # run this step even if previous step failed
+        with:
+          name: Linux unit test results
+          path: ./TestResults/*.trx
+          reporter: dotnet-trx
+          fail-on-error: true
 
   build-release-windows:
     needs: test-linux
     runs-on: windows-latest
     permissions:
       id-token: write # Required to obtain the ID token from GitHub Actions
-      contents: read # Required to check out code
+      contents: write # Read Required to check out code, Write to create Git Tags
       checks: write # Required for test-reporter
-    env:
-      OCTOPUS_SPACE: "Core Platform"
-
     steps:
-    - uses: actions/checkout@v4
-      with:
-        fetch-depth: 0 # all
+      # Must clone the entire history for OctoVersion to work
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 
 
-    - name: Setup NET 8.0
-      uses: actions/setup-dotnet@v3
-      with:
-        dotnet-version: '8.0.x'
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
 
-    # Adjustment is done prior to Nuke build as OCTOVERSION information is included in the result package.
-    - name: Append OCTOVERSION_CurrentBranch with -nightly (for scheduled)
-      if: github.event_name == 'schedule'
-      run: echo "OCTOVERSION_CurrentBranch=${{ env.OCTOVERSION_CurrentBranch }}-nightly-$(date +'%Y%m%d%H%M%S')" >> $env:GITHUB_ENV
+      - name: Append OCTOVERSION_CurrentBranch with -nightly-<timestamp> (for scheduled)
+        if: github.event_name == 'schedule'
+        run: echo "OCTOVERSION_CurrentBranch=${{ env.OCTOVERSION_CurrentBranch }}-nightly-$(Get-Date -Format 'yyyyMMddHHmmss')" >> $env:GITHUB_ENV
 
-    - name: Nuke Build 🏗
-      id: build
-      run: ./build.ps1 --verbosity verbose
+      - name: Nuke Build 🏗
+        id: build
+        run: ./build.ps1 --verbosity verbose
 
-    - name: Windows unit test report
-      uses: dorny/test-reporter@v1
-      if: success() || failure()    # run this step even if previous step failed
-      with:
-        name: Windows unit test results
-        path: ./TestResults/*.trx
-        reporter: dotnet-trx
-        fail-on-error: true
+      - name: Windows unit test report
+        uses: dorny/test-reporter@v1
+        if: success() || failure()    # run this step even if previous step failed
+        with:
+          name: Windows unit test results
+          path: ./TestResults/*.trx
+          reporter: dotnet-trx
+          fail-on-error: true
 
-    - name: Tag release (when not pre-release) 🏷️
-      if: ${{ !contains( steps.build.outputs.octoversion_fullsemver, '-' ) }}
-      uses: actions/github-script@v7
-      with:
-        github-token: ${{ github.token }}
-        script: |
-          github.rest.git.createRef({
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            ref: "refs/tags/${{ steps.build.outputs.octoversion_fullsemver }}",
-            sha: context.sha
-          })
+      - name: Tag release (when not pre-release) 🏷️
+        if: ${{ !contains( steps.build.outputs.octoversion_fullsemver, '-' ) }}
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ github.token }}
+          script: |
+            github.rest.git.createRef({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              ref: "refs/tags/${{ steps.build.outputs.octoversion_fullsemver }}",
+              sha: context.sha
+            })
 
-    - name: Login to Octopus Deploy 🐙
-      if: (! contains(github.ref, '/merge')) && (! contains(github.ref, '/dependabot/')) && (! contains(github.ref, 'prettybot/'))
-      uses: OctopusDeploy/login@v1
-      with: 
-        server: https://deploy.octopus.app
-        service_account_id: 44daf805-da46-4efb-a403-a3b656dc31fc
+      - name: Login to Octopus Deploy 🐙
+        if: (! contains(github.ref, '/merge')) && (! contains(github.ref, '/dependabot/')) && (! contains(github.ref, 'prettybot/'))
+        uses: OctopusDeploy/login@v1
+        with: 
+          server: ${{ secrets.OCTOPUS_URL }}
+          service_account_id: 44daf805-da46-4efb-a403-a3b656dc31fc
 
-    - name: Push to Octopus 🐙
-      uses: OctopusDeploy/push-package-action@v3
-      if: (! contains(github.ref, '/merge')) && (! contains(github.ref, '/dependabot/')) && (! contains(github.ref, 'prettybot/'))
-      with:
-        packages: |
-          ./artifacts/Octopus.Octodiff.${{ steps.build.outputs.octoversion_fullsemver }}.nupkg
+      - name: Push to Octopus 🐙
+        uses: OctopusDeploy/push-package-action@v3
+        if: (! contains(github.ref, '/merge')) && (! contains(github.ref, '/dependabot/')) && (! contains(github.ref, 'prettybot/'))
+        with:
+          packages: |
+            ./artifacts/Octopus.Octodiff.${{ steps.build.outputs.octoversion_fullsemver }}.nupkg
 
-    - name: Create Release in Octopus 🐙
-      uses: OctopusDeploy/create-release-action@v3
-      if: (! contains(github.ref, '/merge')) && (! contains(github.ref, '/dependabot/')) && (! contains(github.ref, 'prettybot/'))
-      with:
-        project: Octodiff
-        packages: |
-          Octopus.Octodiff:${{ steps.build.outputs.octoversion_fullsemver }}
+      - name: Create Release in Octopus 🐙
+        uses: OctopusDeploy/create-release-action@v3
+        if: (! contains(github.ref, '/merge')) && (! contains(github.ref, '/dependabot/')) && (! contains(github.ref, 'prettybot/'))
+        with:
+          project: Octodiff
+          packages: |
+            Octopus.Octodiff:${{ steps.build.outputs.octoversion_fullsemver }}
