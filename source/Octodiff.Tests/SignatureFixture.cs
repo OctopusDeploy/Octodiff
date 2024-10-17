@@ -1,7 +1,5 @@
-﻿using System.ComponentModel;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using System.IO;
-using System.Runtime.ExceptionServices;
 using NUnit.Framework;
 using Octodiff.Tests.Util;
 
@@ -28,7 +26,7 @@ namespace Octodiff.Tests
             Trace.WriteLine(string.Format("Basis size: {0:n0}", basisSize));
             Trace.WriteLine(string.Format("Signature size: {0:n0}", signatureSize));
             Trace.WriteLine(string.Format("Signature ratio: {0:n3}", signatureSizePercentageOfBasis));
-            Assert.IsTrue(0.012 <= signatureSizePercentageOfBasis && signatureSizePercentageOfBasis <= 0.014);
+            Assert.That(signatureSizePercentageOfBasis, Is.GreaterThanOrEqualTo(0.012).And.LessThanOrEqualTo(0.014));
         }
         [Test]
         [TestCase("SmallPackage1mb.zip", 10)]

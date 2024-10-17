@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using NUnit.Framework;
+using NUnit.Framework.Legacy;
 using Octodiff.Core;
 using Octodiff.Diagnostics;
 using Octodiff.Tests.Util;

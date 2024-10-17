@@ -82,7 +82,7 @@ class Build : NukeBuild
                 .SetProjectFile(Solution)
                 .SetConfiguration(Configuration)
                 .SetLoggers("trx")
-                .SetVerbosity(DotNetVerbosity.Normal)
+                .SetVerbosity(DotNetVerbosity.normal)
                 .SetFilter(TestFilter)
                 .EnableNoBuild()
                 .EnableNoRestore()
