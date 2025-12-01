@@ -41,7 +41,7 @@ jobs:
         run: ./build.sh -target Test
 
       - name: Linux unit test report
-        uses: dorny/test-reporter@6e6a65b7a0bd2c9197df7d0ae36ac5cee784230c # v2.0.0
+        uses: dorny/test-reporter@fe45e9537387dac839af0d33ba56eed8e24189e8 # v2.3.0
         if: success() || failure()    # run this step even if previous step failed
         with:
           name: Linux unit test results
@@ -77,7 +77,7 @@ jobs:
         run: ./build.ps1 --verbosity verbose
 
       - name: Windows unit test report
-        uses: dorny/test-reporter@6e6a65b7a0bd2c9197df7d0ae36ac5cee784230c # v2.0.0
+        uses: dorny/test-reporter@fe45e9537387dac839af0d33ba56eed8e24189e8 # v2.3.0
         if: success() || failure()    # run this step even if previous step failed
         with:
           name: Windows unit test results
