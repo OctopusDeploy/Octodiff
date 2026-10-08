@@ -32,12 +32,12 @@ jobs:
         with:
           fetch-depth: 0 # all
 
-      - name: Setup NET 8.0
+      - name: Setup .NET 10
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: '8.0.x'
+          dotnet-version: '10.0.x'
 
-      - name: Test NET 8
+      - name: Test .NET 10
         run: ./build.sh -target Test
 
       - name: Linux unit test report
@@ -63,10 +63,10 @@ jobs:
         with:
           fetch-depth: 0 
 
-      - name: Setup .NET 8
+      - name: Setup .NET 10
         uses: actions/setup-dotnet@v4
         with:
-          dotnet-version: 8.0.x
+          dotnet-version: 10.0.x
 
       - name: Append OCTOVERSION_CurrentBranch with -nightly-<timestamp> (for scheduled)
         if: github.event_name == 'schedule'
