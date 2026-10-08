@@ -200,8 +200,8 @@ using(var newFileStream = new FileStream(newFilePath2, FileMode.Create, FileAcce
 
 ## Development
 You need:
-- VSCode or Visual Studio 15.3 to compile the solution
-- .NET Core 2.0 SDK (https://download.microsoft.com/download/0/F/D/0FD852A4-7EA1-4E2A-983A-0484AC19B92C/dotnet-sdk-2.0.0-win-x64.exe)
+- VSCode, Visual Studio or Rider to compile the solution
+- .NET 10 SDK (https://dotnet.microsoft.com/download/dotnet/10.0)
 
 Run `Build.cmd` to build, test and package the project.
 
