@@ -8,7 +8,7 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="!$([MSBuild]::IsOSUnixLike())">
-    <TargetFrameworks>net10.0;net462</TargetFrameworks>
+    <TargetFrameworks>net10.0;net472</TargetFrameworks>
   </PropertyGroup>
   <PropertyGroup Condition="$([MSBuild]::IsOSUnixLike())">
     <TargetFramework>net10.0</TargetFramework>
@@ -24,11 +24,11 @@
     <PackageReference Include="NUnit3TestAdapter" Version="6.3.0" />
   </ItemGroup>
 
-  <PropertyGroup Condition="'$(TargetFramework)'=='net462'">
+  <PropertyGroup Condition="'$(TargetFramework)'=='net472'">
     <OutputType>Exe</OutputType>
   </PropertyGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)'=='net462'">
+  <ItemGroup Condition="'$(TargetFramework)'=='net472'">
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
