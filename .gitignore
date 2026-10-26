@@ -179,3 +179,5 @@ source/SmallPackage*
 SmallPackage*
 tools/
 artifacts/
+
+.DS_Store

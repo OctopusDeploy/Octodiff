@@ -18,9 +18,9 @@ namespace Octodiff.CommandLine
         public int Execute(string[] commandLineArguments)
         {
 #if NET40
-            var executable = Path.GetFileNameWithoutExtension(new Uri(typeof(HelpCommand).Assembly.CodeBase).LocalPath);
+            var executable = Path.GetFileNameWithoutExtension(new Uri(typeof(HelpCommand).Assembly.Codebase).LocalPath);
 #else
-            var executable = Path.GetFileNameWithoutExtension(new Uri(typeof(HelpCommand).GetTypeInfo().Assembly.CodeBase).LocalPath);
+            var executable = Path.GetFileNameWithoutExtension(new Uri(typeof(HelpCommand).GetTypeInfo().Assembly.Location).LocalPath);
 #endif
 
             var commandName = commandLineArguments.FirstOrDefault();
