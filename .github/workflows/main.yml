@@ -28,7 +28,7 @@ jobs:
   test-linux:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
         with:
           fetch-depth: 0 # all
 
@@ -59,7 +59,7 @@ jobs:
     steps:
       # Must clone the entire history for OctoVersion to work
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0 
 
